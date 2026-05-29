@@ -60,7 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     clearToken()
     sessionStorage.removeItem('dismissed_notices')
-    setUser(null)
+    window.location.href = '/'
   }
 
   return (
