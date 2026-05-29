@@ -61,7 +61,7 @@ export function Settings() {
         key => key.startsWith('applikon_') || key === 'tour_completed'
       )
       keysToRemove.forEach(key => localStorage.removeItem(key))
-      setTimeout(() => { window.location.href = '/login' }, 100)
+      setTimeout(() => { window.location.href = '/' }, 100)
     } catch {
       setError(t('settings.deleteAccount.error') || 'Failed to delete account')
       setIsDeleting(false)

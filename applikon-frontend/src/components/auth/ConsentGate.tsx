@@ -37,11 +37,11 @@ export function ConsentGate({ children }: ConsentGateProps) {
   const handleLogout = async () => {
     try {
       await logout()
-      window.location.href = '/login'
+      window.location.href = '/'
     } catch {
       // Even if logout fails, clear local token and redirect
       localStorage.removeItem('applikon_token')
-      window.location.href = '/login'
+      window.location.href = '/'
     }
   }
 

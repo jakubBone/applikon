@@ -21,7 +21,7 @@ function renderProtectedRoute() {
   return render(
     <MemoryRouter initialEntries={['/dashboard']}>
       <Routes>
-        <Route path="/login" element={<div>Login page</div>} />
+        <Route path="/" element={<div>Landing page</div>} />
         <Route
           path="/dashboard"
           element={
@@ -48,7 +48,7 @@ describe('ProtectedRoute', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('unauthenticated — redirects to /login', () => {
+  it('unauthenticated — redirects to /', () => {
     mockUseAuth.mockReturnValue({
       isLoading: false,
       isAuthenticated: false,
@@ -57,7 +57,7 @@ describe('ProtectedRoute', () => {
     })
 
     renderProtectedRoute()
-    expect(screen.getByText('Login page')).toBeInTheDocument()
+    expect(screen.getByText('Landing page')).toBeInTheDocument()
     expect(screen.queryByText('Protected content')).not.toBeInTheDocument()
   })
 

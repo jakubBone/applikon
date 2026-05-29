@@ -38,6 +38,7 @@
 | Data export (phase 08) | Not in MVP | GET /api/auth/me/export returns JSON blob with all user data (RODO Art. 20) | Added (phase 08) |
 | Service notices (phase 08) | Not in MVP | BANNER/MODAL notices via DB; admin POST endpoint secured by X-Admin-Key header; countdown timer | Added (phase 08) |
 | API documentation (phase 11) | Not in MVP | Swagger UI at /swagger-ui.html; OpenAPI 3 spec auto-generated; JWT Bearer auth scheme; all controllers tagged | Added (phase 11) |
+| Landing page (phase 15) | Not in MVP | Public `/` route renders `LandingPage` component; unauthenticated users see landing, authenticated users redirect to `/dashboard`; static Kanban preview mock; rotating job portal animation; i18n PL/EN; mobile responsive | Added (phase 15) |
 
 ---
 

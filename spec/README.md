@@ -28,6 +28,7 @@ were written before code, not after.
 | GitHub Actions CI (phase 12) | `v1/12-ci/` | Complete |
 | Docker Registry — GHCR (phase 13) | `v1/13-docker-registry/` | Complete |
 | Brand rename to Applikon (phase 14) | `v1/14-rebrand-applikon/` | Complete |
+| Landing page (phase 15) | `v1/15-landing-page/` | Complete |
 | **Architecture reference** | **`v1/architecture.md`** | **Package structure, REST endpoints, DB schema, FE components** |
 | **Security reference** | **`v1/security.md`** | **OAuth2 + JWT flow diagrams, filter chain, headers, CORS** |
 | As-built history | `v1/as-built.md` | Plan vs reality, deviations, phase-by-phase notes |

@@ -4,7 +4,7 @@ import { AuthProvider } from './auth/AuthProvider'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { ConsentGate } from './components/auth/ConsentGate'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { LoginPage } from './pages/LoginPage'
+import { LandingPage } from './pages/LandingPage'
 import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { Settings } from './pages/Settings'
@@ -38,7 +38,7 @@ export default function App() {
           <ErrorBoundary>
             <Routes>
               {/* Public routes */}
-              <Route path="/login" element={<LoginPage />} />
+              <Route path="/login" element={<Navigate to="/" replace />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
 
@@ -63,7 +63,7 @@ export default function App() {
               />
 
               {/* Default redirects */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </ErrorBoundary>
