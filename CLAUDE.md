@@ -50,13 +50,13 @@ Example: `refactor(backend): extract validation into ApplicationValidator`
 
 ## Where to look for deeper context
 
-| Need | Read |
-|------|------|
-| User-facing project overview | `README.md` |
-| Architecture / DB schema / REST endpoints / FE components | `spec/v1/architecture.md` |
-| Security flow / filter chain / tokens / headers / CORS | `spec/v1/security.md` |
-| Original vision / problem / MVP scope | `spec/v1/01-vision/brief.md` |
-| Plan vs reality / phase history | `spec/v1/as-built.md` |
-| Spec phases index | `spec/README.md` |
-| v2 microservices vision | `spec/v2/vision.md` |
-| Deploy instructions | `deployment-hetzner.md` (step-by-step) |
+| Need | Read                                                   |
+|------|--------------------------------------------------------|
+| User-facing project overview | `README.md`                                            |
+| Architecture / DB schema / REST endpoints / FE components | `spec/v1/architecture.md`                              |
+| Security flow / filter chain / tokens / headers / CORS | `spec/v1/security.md`                                  |
+| Original vision / problem / MVP scope | `spec/v1/01-vision/brief.md`                           |
+| Plan vs reality / phase history | `spec/v1/as-built.md`                                  |
+| Spec phases index | `spec/README.md`                                       |
+| v2 microservices vision | `spec/v2/vision.md`                                    |
+| Deploy instructions | `spec/deployment/deployment-hetzner.md` (step-by-step) |
