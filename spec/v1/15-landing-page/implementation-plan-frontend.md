@@ -253,15 +253,15 @@ public/
 
 ## Definition of Done
 
-- [ ] Unauthenticated user at `/` sees landing page
-- [ ] Authenticated user at `/` redirects to `/dashboard`
-- [ ] Privacy policy link visible before any login prompt
-- [ ] Rotating portal name animates every 2 seconds
-- [ ] Screenshot visible in hero section
-- [ ] All 6 feature cards visible
-- [ ] All 4 Why Google cards visible
-- [ ] PL/EN language switcher works on landing page
-- [ ] Responsive: mobile (375px) and desktop (1280px) verified
+- [x] Unauthenticated user at `/` sees landing page
+- [x] Authenticated user at `/` redirects to `/dashboard`
+- [x] Privacy policy link visible before any login prompt
+- [x] Rotating portal name animates every 2 seconds
+- [x] Screenshot visible in hero section (replaced by static Kanban mock)
+- [x] All 6 feature cards visible
+- [x] All 4 Why Google cards visible
+- [x] PL/EN language switcher works on landing page
+- [x] Responsive: mobile (375px) and desktop (1280px) verified
 - [x] `npm run build` — no errors
 - [x] `npm run test:run` — 0 failed (105/105)
 - [x] `as-built.md` updated
