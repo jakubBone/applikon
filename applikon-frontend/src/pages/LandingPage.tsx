@@ -71,8 +71,7 @@ export function LandingPage() {
                   className="lp-portal"
                   style={{
                     opacity: portalVisible ? 1 : 0,
-                    transform: portalVisible ? 'translateY(0)' : 'translateY(-8px)',
-                    transition: 'opacity 0.2s ease, transform 0.2s ease',
+                    transition: 'opacity 0.2s ease',
                   }}
                 >
                   <span className="lp-portal-name">{PORTALS[portalIndex]}</span>
