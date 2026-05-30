@@ -79,7 +79,7 @@ export function LandingPage() {
                 </span>
               </span>
               <br />
-              <strong>Applikon</strong>{' '}{t('landing.subtitlePart4')}
+              {t('landing.subtitlePart4pre')}<strong>{t('landing.subtitlePart4brand')}</strong>{t('landing.subtitlePart4')}
             </p>
             <div className="lp-cta-group">
               <button className="lp-google-btn" onClick={handleGoogleLogin}>
