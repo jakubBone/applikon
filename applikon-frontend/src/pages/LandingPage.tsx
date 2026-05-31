@@ -59,6 +59,7 @@ export function LandingPage() {
         <div className="lp-hero-blob lp-hero-blob-2" />
         <section className="lp-hero">
           <div className="lp-hero-text">
+            <span className="lp-badge">{t('landing.badgeSpiny')}</span>
             <h1 className="lp-headline">
               {t('landing.headline1')}<br />
               <span className="lp-headline-accent">{t('landing.headline2')}</span>

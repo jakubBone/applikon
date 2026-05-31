@@ -222,6 +222,7 @@
   },
   "landing": {
     "badge": "Free · No email registration",
+    "badgeSpiny": "No stress!",
     "headline1": "Stop the chaos",
     "headline2": "in IT recruitment",
     "subtitlePart1": "Applying to jobs?",
@@ -234,7 +235,7 @@
     "privacyLink": "Privacy Policy →",
     "featuresTitle": "What you get",
     "feat1Title": "Applications in one place",
-    "feat1Desc": "Sending CVs through multiple job boards and already getting lost? Here you have it all under control.",
+    "feat1Desc": "You add your applications and control what's happening with each one.",
     "feat2Title": "Kanban & recruitment stages",
     "feat2Desc": "Drag applications between stages. One glance and you know where you stand with every company.",
     "feat3Title": "Notes & salary",
