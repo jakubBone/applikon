@@ -47,7 +47,7 @@ without a plan first; no plan was written without knowing what *not* to do.
 |-----|----------------|-------------------------------------------------------------------------------------------------------------------------------|
 | 🟦  | **Specify**    | Sets up the phase before any code: context, scope, **out of scope**, numbered Definition of Done.                             |
 | 🟪  | **Plan**       | Implementation steps with tests batched at the end of each stage.                                                             |
-| 🟧  | **Implement**  | Code against the plan — each step with tests, DoD, and a Conventional Commit (`feat(backend)`, `refactor(frontend)`).         |
+| 🟧  | **Implement**  | Code against the plan - each step with tests, DoD, and a Conventional Commit (`feat(backend)`, `refactor(frontend)`).         |
 | 🟨  | **Review**     | Findings classified **Critical / Important / Nice-to-have**, with **Status** and **Tested** columns until each one is closed. |
 | 🟩  | **Refactor**   | Fixes applied alongside learning: explain → fix → control questions → notes (the AI runs in *mentor mode*).                   |
 
@@ -98,20 +98,19 @@ spec/
 
 ## ✨ Features
 
-- **Application registry** - company, position, salary (range, currency, gross/net, contract type), job source, link to posting
+- **Application registry** - company, position, salary, job source, link to posting
 - **Kanban board** - visual overview of recruitment status: Sent → In progress → Completed, with drag & drop
-- **Recruitment stages** - tracking current stage: HR interview, technical interview, manager interview, recruitment task, final interview, or custom stage
-- **CV archive** - storing different CV versions (link or note — file upload temporarily disabled) and assigning them to specific applications
-- **Notes** - saving interview questions, feedback, and personal thoughts for each application (categories: Questions / Feedback / Other)
+- **Recruitment stages** - tracking current stage: HR interview, technical interview, manager interview, recruitment task, final interview
+- **CV archive** - storing different CV versions and assigning them to specific applications
+- **Notes** - saving interview questions, feedback, and personal thoughts for each application 
 - **Job posting archive** - copy of the job description in case the link expires
-- **Duplicate detection** - warning when reapplying to the same company and position
 - **Badge system** - achievements for rejections and ghosting (gamification)
 - **Authentication** - Google OAuth2 login, JWT access token + refresh token
 - **i18n** - Polish and English interface with a language switcher
 - **Settings** - account management: change display name, delete account
 - **Data export** - download all personal data as JSON (RODO Art. 20)
 - **Service notices** - system announcements displayed on login (maintenance, updates)
-- **API documentation** - Swagger UI with all endpoints, request/response schemas, and authorization
+- **API documentation** - Swagger UI with all endpoints, schemas, and authorization
 
 
 ## 🐳 Running with Docker
