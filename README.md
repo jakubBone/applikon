@@ -115,12 +115,54 @@ spec/
 
 ## 🐳 Running with Docker
 
+**Prerequisites:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+
+### Step 1 - Google OAuth credentials (required for login)
+
+The app uses Google login. You need to create credentials once in Google Cloud Console:
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com/) and sign in.
+2. Create a new project (top-left dropdown → **New Project**).
+3. In the left menu go to **APIs & Services → OAuth consent screen**.
+   - Choose **External**, click **Create**.
+   - Fill in **App name** (e.g. `Applikon`), **User support email**, and **Developer contact email**. Save.
+4. Go to **APIs & Services → Credentials → Create Credentials → OAuth client ID**.
+   - Application type: **Web application**.
+   - Under **Authorized redirect URIs** add exactly:
+     ```
+     http://localhost:8080/login/oauth2/code/google
+     ```
+   - Click **Create**.
+5. Copy the **Client ID** and **Client Secret** - you will need them in the next step.
+
+### Step 2 - Configure and start
+
 ```bash
-cp .env.example .env        # fill in Postgres credentials + Google OAuth client ID/secret
+cp .env.example .env
+```
+
+Open `.env` and fill in the required values:
+
+| Variable | Value |
+|----------|-------|
+| `POSTGRES_USER` | any username, e.g. `applikon` |
+| `POSTGRES_PASSWORD` | any password |
+| `DATABASE_USERNAME` | same as `POSTGRES_USER` |
+| `DATABASE_PASSWORD` | same as `POSTGRES_PASSWORD` |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:5173` |
+| `FRONTEND_URL` | `http://localhost:3000` |
+| `GOOGLE_CLIENT_ID` | from Step 1 |
+| `GOOGLE_CLIENT_SECRET` | from Step 1 |
+| `ADMIN_KEY` | any random string, e.g. output of `openssl rand -base64 32` |
+| `APP_TOKEN_HMAC_SECRET` | any random string, e.g. output of `openssl rand -base64 32` |
+
+Then start the app:
+
+```bash
 docker compose up --build
 ```
 
-Open `http://localhost:3000`. All required variables are documented in `.env.example`.
+Open `http://localhost:3000`.
 
 Production images (published to GHCR on every `master` build):
 ```
