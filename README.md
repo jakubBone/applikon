@@ -55,9 +55,9 @@ without a plan first; no plan was written without knowing what *not* to do.
 spec/
 ├── v1/
 │   ├── 01-vision/              ← MVP scope
-│   ├── 02-implementation/      ← implementation plan
-│   ├── 03-review/              ← code review
-│   ├── 04-mvp-refactoring/     ← refactoring & learning (Claude as mentor)
+│   ├── 02-implementation/      ← MVP implementation plan
+│   ├── 03-review/              ← MVP code review
+│   ├── 04-mvp-refactoring/     ← MVP refactoring & learning (Claude as mentor)
 │   ├── 05-additional-features/ ← i18n, onboarding, gamification
 │   ├── 06-cleanup/             ← technical cleanup
 │   ├── 07-privacy-rodo/        ← RODO & privacy policy
