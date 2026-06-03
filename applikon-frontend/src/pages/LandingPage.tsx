@@ -103,7 +103,7 @@ export function LandingPage() {
               <div className="lp-col">
                 <div className="lp-col-header" style={{ borderTopColor: '#3498db' }}>
                   <span>{t('kanban.statusSENT')}</span>
-                  <span className="lp-cnt">3</span>
+                  <span className="lp-cnt">2</span>
                 </div>
                 <div className="lp-card">
                   <div className="lp-c-company">Allegro</div>
@@ -114,11 +114,6 @@ export function LandingPage() {
                   <div className="lp-c-company">OLX Group</div>
                   <div className="lp-c-role">Backend Engineer</div>
                   <div className="lp-card-date"><span>{t('kanban.cardDate')}</span><span>14.05</span></div>
-                </div>
-                <div className="lp-card">
-                  <div className="lp-c-company">X-KOM</div>
-                  <div className="lp-c-role">Junior Java Dev</div>
-                  <div className="lp-card-date"><span>{t('kanban.cardDate')}</span><span>08.05</span></div>
                 </div>
               </div>
               <div className="lp-col">
