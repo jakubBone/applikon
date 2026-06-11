@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from './auth/AuthProvider'
 import KanbanBoard from './components/kanban/KanbanBoard'
 import CVManager from './components/cv/CVManager'
@@ -25,15 +25,22 @@ import {
 import type { Application, StageUpdateRequest } from './types/domain'
 import './App.css'
 
-type View = 'kanban' | 'list' | 'cv' | 'details'
+type View = 'kanban' | 'list' | 'cv'
+
+const VIEWS: View[] = ['kanban', 'list', 'cv']
 
 export default function AppContent() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { signOut } = useAuth()
-  const [view, setView] = useState<View>('kanban')
-  const [previousView, setPreviousView] = useState<View>('kanban')
-  const [selectedAppId, setSelectedAppId] = useState<number | null>(null)
+  // View and selected application live in the URL (?view=list&app=123) so that
+  // every screen change creates a browser history entry — the back button
+  // navigates within the app instead of leaving it.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const viewParam = searchParams.get('view')
+  const view: View = VIEWS.includes(viewParam as View) ? (viewParam as View) : 'kanban'
+  const appParam = searchParams.get('app')
+  const selectedAppId = appParam !== null ? Number(appParam) : null
   const [showForm, setShowForm] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [editingApp, setEditingApp] = useState<Application | null>(null)
@@ -72,17 +79,29 @@ export default function AppContent() {
       window.removeEventListener('resize', syncLogoWidth)
       clearTimeout(timeoutId)
     }
-  }, [view])
+  }, [view, selectedAppId])
+
+  const setView = (next: View) => {
+    if (next === view && selectedAppId === null) return
+    setSearchParams(params => {
+      params.set('view', next)
+      params.delete('app')
+      return params
+    })
+  }
 
   const handleViewDetails = (app: Application) => {
-    setPreviousView(view)
-    setSelectedAppId(app.id)
-    setView('details')
+    setSearchParams(params => {
+      params.set('app', String(app.id))
+      return params
+    })
   }
 
   const handleBackToList = () => {
-    setSelectedAppId(null)
-    setView(previousView)
+    setSearchParams(params => {
+      params.delete('app')
+      return params
+    })
   }
 
   const handleStatusChange = (applicationId: number, newStatus: string) => {
@@ -104,7 +123,7 @@ export default function AppContent() {
   const handleDeleteSingle = (id: number) => {
     deleteApplication.mutate(id, {
       onSuccess: () => {
-        if (view === 'details') handleBackToList()
+        if (selectedAppId !== null) handleBackToList()
       }
     })
   }
@@ -179,7 +198,7 @@ export default function AppContent() {
 
       <TourGuide />
 
-      {view !== 'details' && (
+      {!selectedApp && (
         <div className="toolbar">
           <div className="view-tabs">
             <button
@@ -230,7 +249,7 @@ export default function AppContent() {
       <main className="main-content">
         {isLoading ? (
           <p className="loading">{t('app.loading')}</p>
-        ) : view === 'details' && selectedApp ? (
+        ) : selectedApp ? (
           <ApplicationDetails
             application={selectedApp}
             onBack={handleBackToList}
