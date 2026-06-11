@@ -1,5 +1,6 @@
 const CONTACT_EMAIL = 'applikon1990@gmail.com'
-const EFFECTIVE_DATE = new Date().toISOString().split('T')[0]
+// Date the current policy version took effect — update manually when the policy changes
+const EFFECTIVE_DATE = '2026-05-11'
 
 export const privacyPolicyPl = `
 # Polityka prywatności Applikon
