@@ -395,6 +395,7 @@ function CVManager({ applications, onCVAssigned }: Props) {
             <h3>{t('cv.addModalTitle')}</h3>
 
             <div className="add-cv-tabs" role="tablist">
+              {/* Disabled for now — CV files contain personal data; RODO-compliant storage not implemented yet. */}
               <button
                 type="button"
                 role="tab"
