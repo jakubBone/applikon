@@ -9,7 +9,7 @@ describe('Kanban Board Functionality', () => {
           id: 1,
           company: 'Google',
           position: 'Frontend Dev',
-          status: 'WYSLANE',
+          status: 'SENT',
           salaryMin: 10000,
           currency: 'PLN',
           appliedAt: '2024-01-15T10:00:00'
@@ -18,7 +18,7 @@ describe('Kanban Board Functionality', () => {
           id: 2,
           company: 'Meta',
           position: 'Backend Dev',
-          status: 'W_PROCESIE',
+          status: 'IN_PROGRESS',
           currentStage: 'Rozmowa z HR',
           salaryMin: 15000,
           currency: 'EUR',
@@ -28,7 +28,7 @@ describe('Kanban Board Functionality', () => {
           id: 3,
           company: 'Netflix',
           position: 'DevOps',
-          status: 'OFERTA',
+          status: 'OFFER',
           salaryMin: 20000,
           currency: 'USD',
           appliedAt: '2024-01-05T08:00:00'
@@ -158,7 +158,7 @@ describe('Kanban Board Functionality', () => {
           id: 1,
           company: 'Google Updated',
           position: 'Senior Frontend Dev',
-          status: 'WYSLANE',
+          status: 'SENT',
           salaryMin: 12000,
           currency: 'PLN'
         }
