@@ -17,7 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
@@ -97,7 +99,7 @@ class AuthControllerTest {
                 .andExpect(status().isNoContent());
 
         User firstCall = userRepository.findById(testUser.getId()).orElseThrow();
-        var firstTimestamp = firstCall.getPrivacyPolicyAcceptedAt();
+        LocalDateTime firstTimestamp = firstCall.getPrivacyPolicyAcceptedAt();
 
         // Sleep briefly
         Thread.sleep(100);
@@ -107,7 +109,7 @@ class AuthControllerTest {
                 .andExpect(status().isNoContent());
 
         User secondCall = userRepository.findById(testUser.getId()).orElseThrow();
-        var secondTimestamp = secondCall.getPrivacyPolicyAcceptedAt();
+        LocalDateTime secondTimestamp = secondCall.getPrivacyPolicyAcceptedAt();
 
         assertEquals(firstTimestamp, secondTimestamp, "Should not overwrite timestamp");
     }
@@ -137,7 +139,7 @@ class AuthControllerTest {
         note.setCategory(NoteCategory.QUESTIONS);
         noteRepository.save(note);
 
-        var userId = testUser.getId();
+        UUID userId = testUser.getId();
 
         // Act
         mockMvc.perform(delete("/api/auth/me"))
