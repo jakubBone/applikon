@@ -3,10 +3,6 @@ import type { ReactNode } from 'react'
 import type { User } from '../types/domain'
 import { fetchCurrentUser, getToken, clearToken, logout } from '../services/api'
 
-// ============================================================
-// Typy kontekstu
-// ============================================================
-
 interface AuthContextValue {
   user: User | null
   isLoading: boolean
