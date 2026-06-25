@@ -25,6 +25,10 @@
       "Bash(./mvnw test *)",
       "Bash(docker-compose --version)",
       "Read(//mnt/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)"
     ]
   }
 }
