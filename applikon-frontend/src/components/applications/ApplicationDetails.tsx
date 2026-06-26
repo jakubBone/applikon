@@ -36,11 +36,16 @@ const CONTRACT_TYPE_KEYS: Record<string, string> = {
 }
 
 function formatSalary(app: Application, locale: string, t: TFunction): string | null {
-  if (!app.salaryMin) return null
+  if (!app.salary && !app.salaryMin) return null
 
-  let salaryStr = app.salaryMin.toLocaleString(locale)
-  if (app.salaryMax) {
-    salaryStr += ` - ${app.salaryMax.toLocaleString(locale)}`
+  let salaryStr: string
+  if (app.salary && !app.salaryMin) {
+    salaryStr = app.salary.toLocaleString(locale)
+  } else {
+    salaryStr = app.salaryMin!.toLocaleString(locale)
+    if (app.salaryMax) {
+      salaryStr += ` - ${app.salaryMax.toLocaleString(locale)}`
+    }
   }
   salaryStr += ` ${app.currency ?? 'PLN'}`
 

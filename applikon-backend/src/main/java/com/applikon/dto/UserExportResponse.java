@@ -18,6 +18,7 @@ public record UserExportResponse(
             String company,
             String position,
             String link,
+            Integer salary,
             Integer salaryMin,
             Integer salaryMax,
             String currency,

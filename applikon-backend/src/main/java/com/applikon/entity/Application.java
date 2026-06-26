@@ -33,6 +33,9 @@ public class Application {
     private String link;
 
     @Min(value = 0, message = "{validation.salary.positive}")
+    private Integer salary;
+
+    @Min(value = 0, message = "{validation.salary.positive}")
     private Integer salaryMin;
 
     @Min(value = 0, message = "{validation.salary.positive}")
@@ -87,6 +90,7 @@ public class Application {
         app.setCompany(request.company());
         app.setPosition(request.position());
         app.setLink(request.link());
+        app.setSalary(request.salary());
         app.setSalaryMin(request.salaryMin());
         app.setSalaryMax(request.salaryMax());
         app.setCurrency(request.currency());
@@ -103,6 +107,7 @@ public class Application {
         this.company = request.company();
         this.position = request.position();
         this.link = request.link();
+        this.salary = request.salary();
         this.salaryMin = request.salaryMin();
         this.salaryMax = request.salaryMax();
         this.currency = request.currency();

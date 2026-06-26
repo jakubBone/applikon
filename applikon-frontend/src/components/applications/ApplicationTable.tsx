@@ -141,11 +141,16 @@ function ApplicationTable({ applications, onRowClick, onDelete }: Props) {
   }, {}), [applications])
 
   const formatSalary = (app: Application): string => {
-    if (!app.salaryMin) return '-'
+    if (!app.salary && !app.salaryMin) return '-'
 
-    let salaryStr = app.salaryMin.toLocaleString('pl-PL')
-    if (app.salaryMax) {
-      salaryStr += ` - ${app.salaryMax.toLocaleString('pl-PL')}`
+    let salaryStr: string
+    if (app.salary && !app.salaryMin) {
+      salaryStr = app.salary.toLocaleString('pl-PL')
+    } else {
+      salaryStr = app.salaryMin!.toLocaleString('pl-PL')
+      if (app.salaryMax) {
+        salaryStr += ` - ${app.salaryMax.toLocaleString('pl-PL')}`
+      }
     }
     salaryStr += ` ${app.currency || 'PLN'}`
 
@@ -212,7 +217,7 @@ function ApplicationTable({ applications, onRowClick, onDelete }: Props) {
               </div>
 
               <div className="mobile-card-details">
-                {app.salaryMin && (
+                {(app.salary || app.salaryMin) && (
                   <div className="mobile-card-detail-row">
                     <span className="mobile-card-detail-icon">💰</span>
                     <span className="mobile-card-detail-value salary">{formatSalary(app)}</span>

@@ -26,6 +26,7 @@ export interface Application {
   position: string
   status: ApplicationStatus
   currentStage: string | null
+  salary: number | null
   salaryMin: number | null
   salaryMax: number | null
   currency: Currency | null
@@ -74,6 +75,7 @@ export interface User {
 export interface ApplicationRequest {
   company: string
   position: string
+  salary?: number | null
   salaryMin?: number | null
   salaryMax?: number | null
   currency?: Currency | null

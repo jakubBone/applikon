@@ -79,6 +79,7 @@ public class UserExportService {
                 app.getCompany(),
                 app.getPosition(),
                 app.getLink(),
+                app.getSalary(),
                 app.getSalaryMin(),
                 app.getSalaryMax(),
                 app.getCurrency(),
