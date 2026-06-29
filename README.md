@@ -45,37 +45,17 @@ without a plan first; no plan was written without knowing what *not* to do.
 
 |     | Stage          | What it produces                                                                                                              |
 |-----|----------------|-------------------------------------------------------------------------------------------------------------------------------|
-| 🟦  | **Specify**    | Sets up the phase before any code: context, scope, **out of scope**, numbered Definition of Done.                             |
+| 🟦  | **Specify**    | Defines the feature before any code: the idea, user, scope, **out of scope**, user stories with acceptance criteria.          |
 | 🟪  | **Plan**       | Implementation steps with tests batched at the end of each stage.                                                             |
 | 🟧  | **Implement**  | Code against the plan - each step with tests, DoD, and a Conventional Commit (`feat(backend)`, `refactor(frontend)`).         |
 | 🟨  | **Review**     | Findings classified **Critical / Important / Nice-to-have**, with **Status** and **Tested** columns until each one is closed. |
 | 🟩  | **Refactor**   | Fixes applied alongside learning: explain → fix → control questions → notes (the AI runs in *mentor mode*).                   |
 
-```
-spec/
-├── v1/
-│   ├── 01-vision/              ← MVP scope
-│   ├── 02-implementation/      ← MVP implementation plan
-│   ├── 03-review/              ← MVP code review
-│   ├── 04-mvp-refactoring/     ← MVP refactoring & learning (Claude as mentor)
-│   ├── 05-additional-features/ ← i18n, onboarding, gamification
-│   ├── 06-cleanup/             ← technical cleanup
-│   ├── 07-privacy-rodo/        ← RODO & privacy policy
-│   ├── 08-user-data/           ← account management
-│   ├── 09-security-refactoring/ ← OWASP audit, timing attack fix, HMAC-SHA256 tokens
-│   ├── 10-logging/             ← production observability
-│   ├── 11-swagger/             ← API documentation
-│   ├── 12-ci/                  ← GitHub Actions CI
-│   ├── 13-docker-registry/     ← Docker & GHCR
-│   ├── 14-rebrand-applikon     ← rebranding EasyApply -> Applikon
-│   ├── architecture.md         ← package structure, REST endpoints, DB schema, FE components
-│   ├── as-built.md             ← plan vs reality, deviations, phase history
-│   └── security.md             ← security rules, flow
-└── v2/
-    └── vision.md               ← microservices + AI features (CV analysis, job matching)
-```
+## 🤖 Specs & Config
 
-`.claude/` is the Claude Code config directory:
+- **`spec/README.md`** — the spec layout (one folder per version, numbered phases)
+- **`spec/PROCESS.md`** — how specs are written here
+- **`.claude/`** — config directory (commands + skills), shown below:
 
 ```
 .claude/
@@ -85,6 +65,9 @@ spec/
 │   ├── mentor-refactor-backend.md         ← backend refactor + learning (**AI mentor mode**)
 │   └── mentor-refactor-frontend.md        ← frontend refactor + learning (**AI mentor mode**)
 └── skills/
+    ├── spec-assistant/                    ← spec-driven planning: idea → user stories → plan
+    │   ├── SKILL.md
+    │   └── references/
     ├── code-review-backend/               ← Java 21 / Spring Boot 3.4 reviewer
     │   ├── SKILL.md
     │   └── references/
