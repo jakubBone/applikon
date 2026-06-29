@@ -89,9 +89,4 @@ cleanup is effortless.
   counted as stale, regardless of age.
 - Boundary: exactly 60 days is **not** stale; strictly **> 60 days** is.
 
----
 
-## Out of scope (from brief §4)
-
-- No scheduled e-mails / notifications around stale cards.
-- No new dependency, module split, or infrastructure — v2 runs on the v1 monolith.
