@@ -2,14 +2,15 @@ import { useState, useEffect, useRef } from 'react'
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
+  pointerWithin,
+  rectIntersection,
   KeyboardSensor,
   TouchSensor,
   MouseSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core'
+import type { DragStartEvent, DragEndEvent, CollisionDetection } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
 import type { Application, StageUpdateRequest } from '../../types/domain'
 import { isMobile, STATUSES } from './types'
@@ -20,6 +21,17 @@ import { MoveModal } from './MoveModal'
 import { EndModal } from './EndModal'
 import { KanbanColumn } from './KanbanColumn'
 import './KanbanBoard.css'
+
+// Pointer-based collision so a drop lands on whatever is under the cursor.
+// closestCorners compared the dragged card's corners against each droppable's
+// corners; because column droppables span the full column height, a card in an
+// adjacent column could have a closer corner than the intended column — drops
+// resolved to the wrong column. pointerWithin uses the actual pointer position;
+// rectIntersection is the fallback for keyboard dragging (no pointer).
+const collisionDetection: CollisionDetection = (args) => {
+  const pointerCollisions = pointerWithin(args)
+  return pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args)
+}
 
 interface KanbanBoardProps {
   applications: Application[]
@@ -270,7 +282,7 @@ function KanbanBoard({ applications, onStatusChange: _onStatusChange, onStageCha
       <div className="kanban-board-container">
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCorners}
+          collisionDetection={collisionDetection}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >

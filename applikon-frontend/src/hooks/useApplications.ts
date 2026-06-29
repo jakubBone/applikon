@@ -10,7 +10,7 @@ import {
   checkDuplicate,
   assignCVToApplication,
 } from '../services/api'
-import type { ApplicationRequest, StageUpdateRequest } from '../types/domain'
+import type { Application, ApplicationRequest, StageUpdateRequest } from '../types/domain'
 
 // Query keys — central location, eliminates typos when invalidating cache
 export const applicationKeys = {
@@ -79,7 +79,24 @@ export function useUpdateStage() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: StageUpdateRequest }) =>
       updateApplicationStage(id, data),
-    onSuccess: () => {
+    // Optimistic update — move the card immediately instead of waiting for the
+    // server round-trip + refetch, which felt laggy on the deployed backend.
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: applicationKeys.all })
+      const previous = queryClient.getQueryData<Application[]>(applicationKeys.all)
+      queryClient.setQueryData<Application[]>(applicationKeys.all, (old) =>
+        // Cast: StageUpdateRequest types are wider/nullable vs Application;
+        // the onSettled refetch reconciles against the authoritative shape.
+        old?.map(app => (app.id === id ? ({ ...app, ...data } as Application) : app))
+      )
+      return { previous }
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(applicationKeys.all, context.previous)
+      }
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: applicationKeys.all })
       void queryClient.invalidateQueries({ queryKey: ['badgeStats'] })
     },
