@@ -1,4 +1,4 @@
-# Applikon v2 — Screening Companion (on the monolith)
+# Applikon v2 — Screening Companion 
 
 > **Status:** Vision. Pending.
 > **Process & artifacts for this version:** [`../PROCESS.md`](../PROCESS.md).
@@ -57,7 +57,7 @@ on one screen. The call stops being an ambush.
 
 ## 3.2 Board cleanup
 
-**Moment:** silence. An application sitting in `SENT` for more than ~30 days is
+**Moment:** silence. An application sitting in `SENT` for more than ~60 days is
 almost certainly dead.
 
 - The UI suggests archiving such applications as `REJECTED` / `NO_RESPONSE` (enum
@@ -70,8 +70,6 @@ almost certainly dead.
 
 Deliberately excluded — v2 is the smallest release that delivers real value:
 
-- **Any AI-generated content.** The cheat sheet's value is the template and the
-  composition of the user's own data; nothing here needs a model.
 - **Scheduled e-mails / notifications.**
 - **Any new dependency, module split, or infrastructure.** v2 builds on the v1
   monolith as-is.
@@ -86,6 +84,4 @@ v2 is successful when:
   screening-question template.
 - ✅ The per-application cheat-sheet view composes the proposed salary + "My
   answers" on one screen, with an edit link.
-- ✅ Stale applications (>30 days in `SENT`) get a one-click archive suggestion.
-- ✅ No new infrastructure, dependency, or AI is introduced — v2 ships on the v1
-  monolith.
+- ✅ Stale applications (>60 days in `SENT`) get a one-click archive suggestion.
