@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation, type TFunction } from 'react-i18next'
 import { NotesList } from '../notes/NotesList'
 import { ApplicationForm } from './ApplicationForm'
+import { CheatSheetModal } from './CheatSheetModal'
 import { StageModal } from '../kanban/StageModal'
 import { EndModal } from '../kanban/EndModal'
 import { downloadCV } from '../../services/api'
@@ -68,6 +69,7 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null)
   const [stageModalOpen, setStageModalOpen] = useState(false)
   const [endModalOpen, setEndModalOpen] = useState(false)
+  const [cheatSheetOpen, setCheatSheetOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const currentColumn = application.status === 'OFFER' || application.status === 'REJECTED'
@@ -126,10 +128,23 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
         <button className="back-btn" onClick={onBack}>
           {t('details.back')}
         </button>
-        <button className="change-status-btn" onClick={() => { setSelectedStatus(currentColumn); setMoveModalOpen(true) }}>
-          {t('details.changeStatus')}
-        </button>
+        <div className="details-nav-actions">
+          <button className="cheat-sheet-btn" onClick={() => setCheatSheetOpen(true)}>
+            {t('cheatSheet.button')}
+          </button>
+          <button className="change-status-btn" onClick={() => { setSelectedStatus(currentColumn); setMoveModalOpen(true) }}>
+            {t('details.changeStatus')}
+          </button>
+        </div>
       </div>
+
+      {cheatSheetOpen && (
+        <CheatSheetModal
+          application={application}
+          salary={salary}
+          onClose={() => setCheatSheetOpen(false)}
+        />
+      )}
 
       <div className="details-header">
         <div className="details-title">

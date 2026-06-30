@@ -24,6 +24,15 @@
       "expected-salary": "Jakie są Twoje oczekiwania finansowe?"
     }
   },
+  "cheatSheet": {
+    "button": "Ściąga",
+    "title": "Ściąga",
+    "salaryLabel": "Zaproponowana stawka",
+    "companyLabel": "Co wiesz o tej firmie?",
+    "companyPlaceholder": "Zbierz najważniejsze fakty o firmie przed rozmową...",
+    "answersTitle": "Moje odpowiedzi",
+    "editAnswers": "Edytuj"
+  },
   "app": {
     "addApplication": "+ Dodaj aplikację",
     "close": "Zamknij",

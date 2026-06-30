@@ -24,6 +24,15 @@
       "expected-salary": "What are your salary expectations?"
     }
   },
+  "cheatSheet": {
+    "button": "Cheat sheet",
+    "title": "Cheat sheet",
+    "salaryLabel": "Proposed salary",
+    "companyLabel": "What do you know about this company?",
+    "companyPlaceholder": "Gather the key facts about the company before the call...",
+    "answersTitle": "My answers",
+    "editAnswers": "Edit"
+  },
   "app": {
     "addApplication": "+ Add application",
     "close": "Close",

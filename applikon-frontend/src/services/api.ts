@@ -154,6 +154,16 @@ export const updateApplicationStage = async (id: number, data: StageUpdateReques
   return response.json() as Promise<Application>
 }
 
+export const updateCompanyResearch = async (id: number, companyResearch: string): Promise<Application> => {
+  const response = await apiFetch(`${API_URL}/applications/${id}/company-research`, {
+    method: 'PATCH',
+    headers: getHeaders('application/json'),
+    body: JSON.stringify({ companyResearch }),
+  })
+  if (!response.ok) throw new Error('api.updateCompanyResearch')
+  return response.json() as Promise<Application>
+}
+
 export const addStage = async (id: number, stageName: string): Promise<Application> => {
   const response = await apiFetch(`${API_URL}/applications/${id}/stage`, {
     method: 'POST',

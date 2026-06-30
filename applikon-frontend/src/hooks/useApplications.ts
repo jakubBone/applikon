@@ -1,3 +1,4 @@
+import { useCallback, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   fetchApplications,
@@ -5,6 +6,7 @@ import {
   updateApplication,
   updateApplicationStatus,
   updateApplicationStage,
+  updateCompanyResearch,
   addStage,
   deleteApplication,
   checkDuplicate,
@@ -101,6 +103,35 @@ export function useUpdateStage() {
       void queryClient.invalidateQueries({ queryKey: ['badgeStats'] })
     },
   })
+}
+
+// Collapse rapid keystrokes in the cheat-sheet company note into one PATCH.
+const COMPANY_RESEARCH_AUTOSAVE_MS = 800
+
+/**
+ * useUpdateCompanyResearch — per-application "what do you know about this company"
+ * note, with a debounced autosave variant for inline editing in the cheat sheet.
+ */
+export function useUpdateCompanyResearch() {
+  const queryClient = useQueryClient()
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  const mutation = useMutation({
+    mutationFn: ({ id, value }: { id: number; value: string }) => updateCompanyResearch(id, value),
+    onSuccess: (updated) => {
+      queryClient.setQueryData<Application[]>(applicationKeys.all, (old) =>
+        old?.map(app => (app.id === updated.id ? updated : app))
+      )
+    },
+  })
+
+  const { mutate } = mutation
+  const saveDebounced = useCallback((id: number, value: string) => {
+    if (timer.current) clearTimeout(timer.current)
+    timer.current = setTimeout(() => mutate({ id, value }), COMPANY_RESEARCH_AUTOSAVE_MS)
+  }, [mutate])
+
+  return { ...mutation, saveDebounced }
 }
 
 export function useAddStage() {
