@@ -2,7 +2,27 @@
   "nav": {
     "kanban": "Kanban",
     "list": "Lista",
-    "cv": "CV"
+    "cv": "CV",
+    "answers": "Moje odpowiedzi"
+  },
+  "answers": {
+    "title": "Moje odpowiedzi",
+    "subtitle": "Przygotuj raz, użyj na każdej rozmowie. Odpowiedzi zapisują się automatycznie.",
+    "emptyTitle": "Przygotuj swoje odpowiedzi",
+    "emptyDescription": "Zbierz w jednym miejscu odpowiedzi na pytania, które padają na prawie każdej rozmowie rekrutacyjnej.",
+    "fillIn": "Uzupełnij odpowiedzi",
+    "addCustom": "Dodaj własne pytanie",
+    "removeCustom": "Usuń pytanie",
+    "customLabelPlaceholder": "Treść Twojego pytania",
+    "answerPlaceholder": "Wpisz swoją odpowiedź...",
+    "saving": "Zapisywanie...",
+    "saved": "Zapisano",
+    "questions": {
+      "about-me": "Opowiedz coś o sobie",
+      "why-changing": "Dlaczego zmieniasz pracę?",
+      "project": "Opowiedz o swoim projekcie",
+      "expected-salary": "Jakie są Twoje oczekiwania finansowe?"
+    }
   },
   "app": {
     "addApplication": "+ Dodaj aplikację",

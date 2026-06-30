@@ -2,7 +2,27 @@
   "nav": {
     "kanban": "Kanban",
     "list": "List",
-    "cv": "CV"
+    "cv": "CV",
+    "answers": "My answers"
+  },
+  "answers": {
+    "title": "My answers",
+    "subtitle": "Prepare once, use in every interview. Answers save automatically.",
+    "emptyTitle": "Prepare your answers",
+    "emptyDescription": "Keep your answers to the questions that come up in almost every interview in one place.",
+    "fillIn": "Fill in your answers",
+    "addCustom": "Add your own question",
+    "removeCustom": "Remove question",
+    "customLabelPlaceholder": "Your question",
+    "answerPlaceholder": "Type your answer...",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "questions": {
+      "about-me": "Tell us about yourself",
+      "why-changing": "Why are you changing jobs?",
+      "project": "Tell us about your project",
+      "expected-salary": "What are your salary expectations?"
+    }
   },
   "app": {
     "addApplication": "+ Add application",

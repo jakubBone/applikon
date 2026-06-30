@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from './auth/AuthProvider'
 import KanbanBoard from './components/kanban/KanbanBoard'
 import CVManager from './components/cv/CVManager'
+import { MyAnswers } from './components/answers/MyAnswers'
 import ApplicationTable from './components/applications/ApplicationTable'
 import { BadgeWidget } from './components/badges/BadgeWidget'
 import TourGuide from './components/tour/TourGuide'
@@ -25,9 +26,9 @@ import {
 import type { Application, StageUpdateRequest } from './types/domain'
 import './App.css'
 
-type View = 'kanban' | 'list' | 'cv'
+type View = 'kanban' | 'list' | 'cv' | 'answers'
 
-const VIEWS: View[] = ['kanban', 'list', 'cv']
+const VIEWS: View[] = ['kanban', 'list', 'cv', 'answers']
 
 export default function AppContent() {
   const { t } = useTranslation()
@@ -222,8 +223,15 @@ export default function AppContent() {
             >
               {t('nav.cv')}
             </button>
+            <button
+              data-cy="tab-answers"
+              className={`tab-btn ${view === 'answers' ? 'active' : ''}`}
+              onClick={() => setView('answers')}
+            >
+              {t('nav.answers')}
+            </button>
           </div>
-          {view !== 'cv' && (
+          {view !== 'cv' && view !== 'answers' && (
             <button data-cy="add-application-btn" className="add-btn" onClick={() => setShowForm(!showForm)}>
               {showForm ? t('app.close') : t('app.addApplication')}
             </button>
@@ -232,7 +240,7 @@ export default function AppContent() {
       )}
 
       {/* Floating Action Button (Mobile only) */}
-      {view !== 'cv' && (
+      {view !== 'cv' && view !== 'answers' && (
         <button className="fab" onClick={() => setShowForm(!showForm)}>
           <span aria-hidden="true">{showForm ? '✕' : '+'}</span>
         </button>
@@ -269,6 +277,8 @@ export default function AppContent() {
             applications={applications}
             onCVAssigned={() => queryClient.invalidateQueries({ queryKey: applicationKeys.all })}
           />
+        ) : view === 'answers' ? (
+          <MyAnswers />
         ) : (
           <ApplicationTable
             applications={applications}

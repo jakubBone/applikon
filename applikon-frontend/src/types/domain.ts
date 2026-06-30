@@ -94,6 +94,28 @@ export interface StageUpdateRequest {
 }
 
 // ============================================================
+// Screening answers ("My answers")
+// ============================================================
+
+// Mirrors ScreeningAnswerResponse.java
+export interface ScreeningAnswer {
+  id: number
+  questionKey: string | null // stable key for fixed questions; null for custom
+  label: string | null // shown label for custom questions; null for fixed
+  answer: string
+  custom: boolean
+  sortOrder: number
+}
+
+// Mirrors ScreeningAnswerRequest.java — server assigns sortOrder by position
+export interface ScreeningAnswerRequest {
+  questionKey: string | null
+  label: string | null
+  answer: string
+  custom: boolean
+}
+
+// ============================================================
 // Service notices
 // ============================================================
 

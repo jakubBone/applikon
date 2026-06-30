@@ -5,6 +5,8 @@ import type {
   CV,
   Note,
   NoteCategory,
+  ScreeningAnswer,
+  ScreeningAnswerRequest,
   ServiceNotice,
   StageUpdateRequest,
   User,
@@ -303,6 +305,26 @@ export const fetchActiveNotices = async (): Promise<ServiceNotice[]> => {
   const response = await apiFetch(`${API_URL}/system/notices/active`, { headers: getHeaders() })
   if (!response.ok) return []
   return response.json() as Promise<ServiceNotice[]>
+}
+
+// ============================================================
+// Screening answers ("My answers")
+// ============================================================
+
+export const fetchScreeningAnswers = async (): Promise<ScreeningAnswer[]> => {
+  const response = await apiFetch(`${API_URL}/screening-answers`, { headers: getHeaders() })
+  if (!response.ok) throw new Error('api.fetchScreeningAnswers')
+  return response.json() as Promise<ScreeningAnswer[]>
+}
+
+export const saveScreeningAnswers = async (answers: ScreeningAnswerRequest[]): Promise<ScreeningAnswer[]> => {
+  const response = await apiFetch(`${API_URL}/screening-answers`, {
+    method: 'PUT',
+    headers: getHeaders('application/json'),
+    body: JSON.stringify({ answers }),
+  })
+  if (!response.ok) throw new Error('api.saveScreeningAnswers')
+  return response.json() as Promise<ScreeningAnswer[]>
 }
 
 // ============================================================
