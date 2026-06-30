@@ -150,14 +150,14 @@ about this company" note.
   `./mvnw test` and `npm run test:run` + `npm run lint` green.
 
 **Checklist**
-- [ ] Backend: `Application.companyResearch` + `V18` migration + `PATCH .../company-research` (≤1000 → 400)
-- [ ] FE types/api/hook: `companyResearch` + `updateCompanyResearch` (debounced autosave)
-- [ ] `components/applications/CheatSheetModal.tsx` + "Cheat sheet" button in `ApplicationDetails`
-- [ ] Composes proposed salary (`—` when none) + editable company note + "My answers" read view with edit link
-- [ ] Empty answers → placeholder + "Fill in your answers" link
-- [ ] Closes on button / outside click / Esc; available for any status
-- [ ] i18n PL/EN
-- [ ] Backend + frontend tests + lint green
+- [x] Backend: `Application.companyResearch` + `V18` migration + `PATCH .../company-research` (≤1000 → 400)
+- [x] FE types/api/hook: `companyResearch` + `updateCompanyResearch` (debounced autosave)
+- [x] `components/applications/CheatSheetModal.tsx` + "Cheat sheet" button in `ApplicationDetails`
+- [x] Composes proposed salary (`—` when none) + editable company note + "My answers" read view with edit link
+- [x] Empty answers → placeholder + "Fill in your answers" link
+- [x] Closes on button / outside click / Esc; available for any status
+- [x] i18n PL/EN
+- [x] Backend + frontend tests + lint green
 
 ---
 

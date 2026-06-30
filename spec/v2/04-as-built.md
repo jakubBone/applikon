@@ -18,7 +18,7 @@
 |-------|-------|--------|
 | 1 | Backend: "My answers" resource | ✅ Built (2026-06-30) |
 | 2 | Frontend: "My answers" page | ✅ Built (2026-06-30) |
-| 3 | Frontend: Cheat sheet modal | ⏳ Pending |
+| 3 | Cheat sheet modal + per-application company note | ✅ Built (2026-06-30) |
 | 4 | Frontend: Board cleanup | ⏳ Pending |
 
 ---
@@ -141,6 +141,57 @@ with debounced autosave to the Phase 1 resource.
 | Debounce "on edit" (location unspecified) | `saveDebounced` lives in the hook; component owns local edit state | Keeps the timer with the mutation; component stays declarative. Local-state-once init avoids save/echo clobbering edits |
 | — | Dynamic i18n key cast `as unknown as ParseKeys` | Required by the project's typed-i18next setup for `answers.questions.${key}` (mirrors `BadgeWidget`) |
 
-## 4. Phases 3–4 — Frontend
+## 4. Phase 3 — Cheat sheet modal + per-application company note ✅
 
-⏳ Not started. To be filled in as each phase lands.
+**Built (2026-06-30).** A per-application "Cheat sheet" modal that composes the
+proposed salary + an editable per-application company note + the global "My answers".
+Adds the per-application `companyResearch` field (the agreed scope change).
+
+### Backend
+
+| File | What it is |
+|------|------------|
+| `entity/Application.java` | New `companyResearch` (`TEXT`, `@Size(max = 1000)`) |
+| `db/migration/V18__application_company_research.sql` | `ALTER TABLE applications ADD COLUMN company_research TEXT` |
+| `controller/ApplicationController.java` | `PATCH /api/applications/{id}/company-research` + `CompanyResearchRequest` record (≤1000 → 400) |
+| `service/ApplicationService.java` | `updateCompanyResearch(id, value, userId)` (JWT-scoped via `findByIdAndUserId`) |
+| `dto/ApplicationResponse.java` | Exposes `companyResearch` (read) |
+| `dto/UserExportResponse.java` + `service/UserExportService.java` | RODO: `companyResearch` included in the per-application export |
+| `i18n/messages*.properties` | `validation.companyResearch.tooLong` (PL + EN) |
+
+- Editing is **inline + autosave** in the modal, hence a focused `PATCH` (mirrors
+  `PATCH .../stage`) rather than the full `PUT` — `companyResearch` is intentionally
+  **not** part of `ApplicationRequest`.
+- Backend suite: **130/130** (`./mvnw test`); +3 tests (save+return, >1000 → 400,
+  per-application isolation).
+
+### Frontend
+
+| File | What it is |
+|------|------------|
+| `types/domain.ts` | `Application.companyResearch: string \| null` |
+| `services/api.ts` | `updateCompanyResearch(id, value)` (`PATCH`) |
+| `hooks/useApplications.ts` | `useUpdateCompanyResearch` — mutation + `saveDebounced` (800 ms); `onSuccess` patches the app in the list cache |
+| `components/applications/CheatSheetModal.tsx` + `.css` | The modal |
+| `components/applications/ApplicationDetails.tsx` | "Cheat sheet" button in the details nav + modal mount; passes the already-formatted `salary` |
+| i18n `pl`/`en` `common.json` | `cheatSheet.*` block (reuses `answers.*` for saving/empty states) |
+
+- Composes: proposed salary (`—` when none) · editable company note (≤1000 +
+  counter, autosave) · global "My answers" read view (only filled questions, in
+  template order then custom) with an **edit link** that switches to the `answers`
+  view (`useSearchParams`, clears `app`).
+- Empty answers → placeholder + "Fill in your answers" link (reuses `answers.*`).
+- Closes on the close button, outside click, and **Esc**. Available for **any**
+  status (rendered from `ApplicationDetails`, incl. finished).
+- Frontend suite: **117/117** (`npm run test:run`); +5 modal tests; `lint` + `build` green.
+
+### Deviations from plan
+
+| Planned | Built | Why |
+|---------|-------|-----|
+| Edit link "switches to the `answers` view" via threaded prop | Modal uses `useSearchParams` directly | Self-contained — avoids threading a callback `AppContent → ApplicationDetails → modal` |
+| Company note edited "in application details" (earlier option) | Edited **inline in the cheat sheet** | The agreed UX: prepare + read in one place during the call |
+
+## 5. Phase 4 — Board cleanup
+
+⏳ Not started. To be filled in when it lands.
