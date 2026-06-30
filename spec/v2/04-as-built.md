@@ -19,7 +19,7 @@
 | 1 | Backend: "My answers" resource | ✅ Built (2026-06-30) |
 | 2 | Frontend: "My answers" page | ✅ Built (2026-06-30) |
 | 3 | Cheat sheet modal + per-application company note | ✅ Built (2026-06-30) |
-| 4 | Frontend: Board cleanup | ⏳ Pending |
+| 4 | Frontend: Board cleanup | ✅ Built (2026-06-30) |
 
 ---
 
@@ -192,6 +192,45 @@ Adds the per-application `companyResearch` field (the agreed scope change).
 | Edit link "switches to the `answers` view" via threaded prop | Modal uses `useSearchParams` directly | Self-contained — avoids threading a callback `AppContent → ApplicationDetails → modal` |
 | Company note edited "in application details" (earlier option) | Edited **inline in the cheat sheet** | The agreed UX: prepare + read in one place during the call |
 
-## 5. Phase 4 — Board cleanup
+## 5. Phase 4 — Board cleanup ✅
 
-⏳ Not started. To be filled in when it lands.
+**Built (2026-06-30).** Front-only. Surfaces applications stuck in `SENT` >60 days and
+offers a per-card one-click archive as `REJECTED` / `NO_RESPONSE` (v1 enums).
+
+### Files
+
+| File | What it is |
+|------|------------|
+| `utils/stale.ts` | `isStale(app)` (`SENT` && `daysSince(appliedAt) > 60`), `STALE_THRESHOLD_DAYS`, `daysSince`, `ARCHIVE_STALE_PAYLOAD` |
+| `components/kanban/StaleBanner.tsx` | Top-of-board banner; renders nothing at zero |
+| `components/kanban/KanbanBoard.tsx` | Computes `staleCount` from the live props and renders `<StaleBanner>` above the board |
+| `components/kanban/ApplicationCard.tsx` | Per-card stale badge + "Archive" button → `onStageChange(id, ARCHIVE_STALE_PAYLOAD)` |
+| `components/kanban/KanbanBoard.css` | Banner (amber) + card stale badge/archive styles |
+| i18n `pl`/`en` `common.json` | `stale.*` (`banner` with `{{n}}`, `cardBadge`, `archive`) |
+
+### Behaviour notes
+
+- **No new endpoint** — archiving reuses the existing `PATCH .../stage` via the board's
+  `onStageChange` (→ `useUpdateStage`, optimistic). The card moves to `FINISHED`.
+- **Banner count is derived** from the query data each render, so after an archive the
+  app is no longer `SENT` → `isStale` false → count recomputes. **No persistent
+  dismissal** (recomputed on every board load), matching US-3.2.
+- **Per card, no bulk.** The archive button `stopPropagation`s so it never opens details.
+- **Boundary:** exactly 60 days is not stale; strictly `> 60` is (`daysSince > 60`).
+- `{{n}}` is used instead of i18next's magic `count` to avoid pulling in plural-form keys.
+
+### Tests
+
+- `test/utils/stale.test.ts` (4) — 60d not stale / >60 stale / 59d not stale (fake clock);
+  non-`SENT` never stale.
+- `test/components/StaleBanner.test.tsx` (2) — shows count; renders nothing at zero.
+- `test/components/ApplicationCardStale.test.tsx` (2) — stale card archives with
+  `REJECTED` + `NO_RESPONSE`; fresh `SENT` card shows no archive action.
+- Frontend suite: **125/125** (`npm run test:run`); `lint` + `build` green.
+
+---
+
+## 6. v2 status
+
+All four phases built. Backend **130/130**, frontend **125/125**, lint + build green.
+Remaining optional item from the cross-cutting DoD: the single Cypress E2E happy path.

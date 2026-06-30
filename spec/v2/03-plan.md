@@ -187,12 +187,12 @@ Covers US-3.1 / 3.2. Front-only.
   to `FINISHED` as `NO_RESPONSE`. Tests + lint green.
 
 **Checklist**
-- [ ] `utils/stale.ts` — `isStale(app)` (`SENT` && >60 days)
-- [ ] Stale banner on board load (count; hides at zero)
-- [ ] Per-card stale indicator + one-click archive (`REJECTED` + `NO_RESPONSE`)
-- [ ] Banner count recomputes after archive (no persistent dismissal)
-- [ ] i18n PL/EN
-- [ ] Tests + lint green
+- [x] `utils/stale.ts` — `isStale(app)` (`SENT` && >60 days)
+- [x] Stale banner on board load (count; hides at zero)
+- [x] Per-card stale indicator + one-click archive (`REJECTED` + `NO_RESPONSE`)
+- [x] Banner count recomputes after archive (no persistent dismissal)
+- [x] i18n PL/EN
+- [x] Tests + lint green
 
 ---
 
