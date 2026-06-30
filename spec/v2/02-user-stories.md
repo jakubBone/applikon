@@ -19,12 +19,12 @@ so I can cover things specific to me.
 I never lose them.
 
 **Acceptance criteria**
-- The page shows a **fixed template** of standard screening questions, each with a
-  plain-text field: tell me about yourself · why are you changing jobs · what do you
-  know about our company · briefly describe a project you worked on · expected
-  salary.
-- *"What do you know about our company" is company-specific — in v2 its field is a
-  prep reminder; a per-company answer comes later (with the company brief).*
+- The page shows a **fixed template** of standard *global* screening questions, each
+  with a plain-text field: tell me about yourself · why are you changing jobs ·
+  briefly describe a project you worked on · expected salary.
+- *"What do you know about this company" is **not** in the global template — it is a
+  **per-application** field (`Application.companyResearch`) edited in the cheat sheet
+  (see US-2.2), because the answer differs for every company.*
 - The fixed questions cannot be removed; the candidate **can add and remove their
   own** custom questions (label + answer).
 - Each answer field is **plain text** (no formatting), up to **1000 characters**.
@@ -45,13 +45,20 @@ I never lose them.
 **US-2.1** — As a candidate, when a recruiter calls about a specific application, I
 want one quick screen that gathers what I need, so the call stops being an ambush.
 
+**US-2.2** — As a candidate, I want each application to carry its own "what do you
+know about this company" note, edited right in the cheat sheet, so I keep the global
+answers plus the one company-specific thing per application.
+
 **Acceptance criteria**
 - A **"Cheat sheet"** button is visible in the **application details header**.
 - Clicking it opens a **modal** (fast to open and close during a call — closes on
   the close button, outside click, and Esc).
-- The modal composes (no AI, no new data):
+- The modal composes:
   1. the **proposed salary for THIS application** (stored since v1),
-  2. the **global "My answers"** (read view) with an **edit link**.
+  2. a **per-application "What do you know about this company"** field
+     (`Application.companyResearch`, TEXT, ≤1000 chars), **editable inline** in the
+     modal with **autosave** (same UX as "My answers"),
+  3. the **global "My answers"** (read view) with an **edit link**.
 - The cheat sheet is available for applications in **any status**, including
   finished (offer/rejected).
 
@@ -59,6 +66,9 @@ want one quick screen that gathers what I need, so the call stops being an ambus
 - Application has **no proposed salary** recorded (older applications) → show **"-"**.
 - "My answers" is empty → placeholder + **"Fill in your answers"** link (same as
   US-1, edge case).
+- `companyResearch` empty → its field shows a placeholder; nothing is required.
+- `companyResearch` autosave is **per application** — editing it on one application
+  never affects another.
 
 ---
 

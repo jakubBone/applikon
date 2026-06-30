@@ -17,7 +17,7 @@
 | Phase | Scope | Status |
 |-------|-------|--------|
 | 1 | Backend: "My answers" resource | ✅ Built (2026-06-30) |
-| 2 | Frontend: "My answers" page | ⏳ Pending |
+| 2 | Frontend: "My answers" page | ✅ Built (2026-06-30) |
 | 3 | Frontend: Cheat sheet modal | ⏳ Pending |
 | 4 | Frontend: Board cleanup | ⏳ Pending |
 
@@ -85,6 +85,62 @@ request, mirroring `DataIsolationTest`.
 
 ---
 
-## 3. Phases 2–4 — Frontend
+## 3. Phase 2 — Frontend: "My answers" page ✅
+
+**Built (2026-06-30).** New `answers` view (tab next to kanban/list/cv) where the user
+fills a fixed **4-question global** screening template plus their own custom questions,
+with debounced autosave to the Phase 1 resource.
+
+> **Scope change (2026-06-30, agreed with user):** "What do you know about the company"
+> was dropped from the global template — it is now a **per-application** field
+> (`Application.companyResearch`), edited inline in the Phase 3 cheat sheet. Rationale:
+> most prep is the same everywhere (global), but the company answer differs per
+> application. Global template is therefore **4 questions**, not 5.
+
+### Files
+
+| File | What it is |
+|------|------------|
+| `types/domain.ts` | Added `ScreeningAnswer` (read model) + `ScreeningAnswerRequest` (wire shape, no `sortOrder`) |
+| `services/api.ts` | `fetchScreeningAnswers` (`GET`), `saveScreeningAnswers` (`PUT`, body `{ answers }`) |
+| `hooks/useScreeningAnswers.ts` | `useScreeningAnswers` query + `useSaveScreeningAnswers` mutation exposing `saveDebounced` (800 ms); `onSuccess` writes the saved set back into the cache |
+| `components/answers/MyAnswers.tsx` | The view: fixed template merge, add/remove custom, empty state, 1000-char cap + counter, save status |
+| `components/answers/MyAnswers.css` | Styling (cards, empty state, primary-gradient buttons — matches `CVManager.css`) |
+| `AppContent.tsx` | `answers` added to `View`/`VIEWS`, a `tab-answers` button, render branch; add-application button + FAB hidden on this view |
+| i18n `pl`/`en` `common.json` | `nav.answers` + `answers.*` block (strings + the 4 fixed `answers.questions.<key>` labels) |
+
+### Behaviour notes
+
+- **Fixed template keys** (`FIXED_QUESTION_KEYS`): `about-me`, `why-changing`,
+  `project`, `expected-salary` (**4 global** questions). Labels via i18n; dynamic key
+  cast with `as unknown as ParseKeys` (same pattern as `BadgeWidget`). "What do you
+  know about the company" is intentionally absent — per-application, see Phase 3.
+- **Local state vs cache:** the component keeps an editable `items` copy initialized
+  **once** from the query, so an in-flight save never clobbers what the user is typing.
+  Server data merges into the fixed template by `questionKey`; custom answers append.
+- **Autosave** fires only from user actions (`applyChange`), never on initial load.
+  Adding a blank custom row is sent but dropped server-side (Phase 1 rule).
+- **Empty state:** when nothing is filled and the user hasn't started, shows a
+  placeholder + **"Fill in your answers"** that reveals the template.
+- **1000-char cap:** `maxLength` on the textarea **and** a `slice(0, 1000)` guard
+  (covers programmatic/paste paths), with a per-field `length/1000` counter.
+
+### Tests
+
+- `test/hooks/useScreeningAnswers.test.tsx` (2) — query fetch; debounce collapses
+  rapid calls into one save (fake timers).
+- `test/components/MyAnswers.test.tsx` (5) — empty state → reveal template; renders
+  directly when answers exist; typing triggers save; add/remove custom; 1000-char cap + counter.
+- Full frontend suite green: **112/112** (`npm run test:run`); `npm run lint` and
+  `npm run build` green.
+
+### Deviations from plan
+
+| Planned | Built | Why |
+|---------|-------|-----|
+| Debounce "on edit" (location unspecified) | `saveDebounced` lives in the hook; component owns local edit state | Keeps the timer with the mutation; component stays declarative. Local-state-once init avoids save/echo clobbering edits |
+| — | Dynamic i18n key cast `as unknown as ParseKeys` | Required by the project's typed-i18next setup for `answers.questions.${key}` (mirrors `BadgeWidget`) |
+
+## 4. Phases 3–4 — Frontend
 
 ⏳ Not started. To be filled in as each phase lands.

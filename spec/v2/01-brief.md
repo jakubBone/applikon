@@ -39,18 +39,25 @@ calls can come at any time; most applications end in silence.
 **Moment:** the unexpected HR call (or a scheduled HR screening — same content).
 
 **a) "My answers" — global, per user, written by the user.**
-A page with a template of the standard screening questions, each with a text field:
-tell me about yourself · why are you changing jobs · salary expectations · notice
-period / availability · English level. The value is the
-**template itself** — it tells the junior which questions to expect. The app
-generates nothing: the experience and motivation are the user's own.
+A page with a template of the standard *global* screening questions, each with a text
+field: tell me about yourself · why are you changing jobs · briefly describe a project ·
+salary expectations. The value is the **template itself** — it tells the junior which
+questions to expect. The app generates nothing: the experience and motivation are the
+user's own. *"What do you know about the company" is deliberately NOT global* — it is
+per-application (see below), because the answer differs for every company.
 
-**b) "Cheat sheet" view — per application, pure composition.**
-One screen in application details that assembles what already exists:
+**b) "Cheat sheet" view — per application, composition + one per-application field.**
+One screen in application details that assembles what already exists, plus the single
+company-specific note:
 
 1. the **salary the user proposed in THIS application** (stored since v1 — three
    weeks later nobody remembers what they typed into the form),
-2. the **global "My answers"** (with an edit link).
+2. a **per-application "What do you know about this company"** field
+   (`Application.companyResearch`), edited inline right in the cheat sheet,
+3. the **global "My answers"** (read view, with an edit link).
+
+So every application shows the **global answers + its own company note**: most of the
+prep is written once, only the company-specific part is per application.
 
 Scenario: the recruiter calls out of nowhere → open the application → everything is
 on one screen. The call stops being an ambush.
@@ -84,7 +91,8 @@ Deliberately excluded — v2 is the smallest release that delivers real value:
 v2 is successful when:
 
 - ✅ The global "My answers" page lets the user fill and edit the standard
-  screening-question template.
-- ✅ The per-application cheat-sheet view composes the proposed salary + "My
-  answers" on one screen, with an edit link.
+  screening-question template (4 global questions + custom).
+- ✅ The per-application cheat-sheet view composes the proposed salary + a
+  per-application "what do you know about this company" field (edited inline) + the
+  global "My answers" on one screen, with an edit link.
 - ✅ Stale applications (>60 days in `SENT`) get a one-click archive suggestion.

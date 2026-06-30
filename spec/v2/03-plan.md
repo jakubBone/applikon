@@ -1,3 +1,4 @@
+
 # Applikon v2 — Implementation Plan
 
 > Phases with a testable Definition of Done. Sources: [`01-brief.md`](01-brief.md),
@@ -73,10 +74,10 @@ Covers US-1.1 / 1.2 / 1.3.
   autosave** on edit.
 - New view **`answers`** in `AppContent.tsx` (a new view tab next to
   kanban/list/cv) → `components/answers/MyAnswers.tsx`.
-- Fixed template (5 questions, labels via i18n keys): about-me · why-changing ·
-  company-knowledge · project · expected-salary. Each is a
-  plain-text field, **max 1000 chars** with a counter. *"company-knowledge" is
-  per-company — its field is a prep reminder in v2.*
+- Fixed template (**4 global questions**, labels via i18n keys): about-me ·
+  why-changing · project · expected-salary. Each is a plain-text field, **max 1000
+  chars** with a counter. *"What do you know about the company" is NOT here — it is
+  per-application (`Application.companyResearch`), handled in Phase 3.*
 - Add / remove **custom** questions (label + answer); fixed ones not removable.
 - **Empty state**: placeholder + **"Fill in your answers"** action.
 - i18n: PL/EN strings + the 5 fixed labels (`common` namespace).
@@ -91,49 +92,72 @@ Covers US-1.1 / 1.2 / 1.3.
   saved content. `npm run test:run` + `npm run lint` green.
 
 **Checklist**
-- [ ] `types/domain.ts` + `services/api.ts` (`fetchScreeningAnswers`, `saveScreeningAnswers`)
-- [ ] `hooks/useScreeningAnswers.ts` (query + mutation, debounced autosave)
-- [ ] `answers` view in `AppContent.tsx` + `components/answers/MyAnswers.tsx`
-- [ ] Fixed template (5 questions) + add/remove custom questions
-- [ ] Empty state + 1000-char cap with counter
-- [ ] i18n PL/EN (strings + 5 fixed labels)
-- [ ] Tests + lint green
+- [x] `types/domain.ts` + `services/api.ts` (`fetchScreeningAnswers`, `saveScreeningAnswers`)
+- [x] `hooks/useScreeningAnswers.ts` (query + mutation, debounced autosave)
+- [x] `answers` view in `AppContent.tsx` + `components/answers/MyAnswers.tsx`
+- [x] Fixed template (4 global questions) + add/remove custom questions
+- [x] Empty state + 1000-char cap with counter
+- [x] i18n PL/EN (strings + 5 fixed labels)
+- [x] Tests + lint green
 
 ---
 
-## Phase 3 — Frontend: Cheat sheet modal
+## Phase 3 — Cheat sheet modal + per-application company note
 
-Covers US-2.1. Depends on Phase 1/2 (reads "My answers").
+Covers US-2.1 / US-2.2. Depends on Phase 1/2 (reads "My answers"). Adds **one
+per-application field** (`Application.companyResearch`) — a scope addition agreed with
+the user: most prep is global, but each application carries its own "what do you know
+about this company" note.
 
-**Build**
-- `components/applications/CheatSheetModal.tsx` — opened by a **"Cheat sheet"**
-  button in the `ApplicationDetails` header.
-- Composes (no AI, no new data):
+**Build — backend (per-application `companyResearch`)**
+- `entity/Application.java` — add `companyResearch` (`@Column(columnDefinition = "TEXT")`,
+  `@Size(max = 1000)`).
+- `db/migration/V18__application_company_research.sql` — `ALTER TABLE applications ADD
+  COLUMN company_research TEXT`.
+- Expose on `ApplicationResponse` (read) and accept an update. Editing is **inline +
+  autosave** in the modal, so add a focused `PATCH /api/applications/{id}/company-research`
+  (body `{ companyResearch }`) rather than forcing a full `PUT` — mirrors the existing
+  `PATCH .../stage` pattern. Validate ≤1000 → 400.
+- Already covered by the per-application export (it lives on the application); no RODO
+  change beyond the new column travelling with the application.
+
+**Build — frontend**
+- `types/domain.ts` — `Application.companyResearch: string | null`; `services/api.ts`
+  `updateCompanyResearch(id, value)`; a hook/mutation (reuse `useApplications`
+  optimistic pattern) with **debounced autosave** (reuse the Phase-2 debounce shape).
+- `components/applications/CheatSheetModal.tsx` — opened by a **"Cheat sheet"** button
+  in the `ApplicationDetails` header. Composes:
   1. **proposed salary for this application** — from the loaded application
-     (`salary` / `salaryMin`–`salaryMax` + `currency` + `salaryType`); when none
-     present → **"—"**.
-  2. **"My answers"** (read view) via `useScreeningAnswers`, with an **edit link**
+     (`salary` / `salaryMin`–`salaryMax` + `currency` + `salaryType`); when none → **"—"**.
+  2. **per-application "What do you know about this company"** — editable textarea
+     (≤1000 + counter), autosaves to `companyResearch` for THIS application.
+  3. **"My answers"** (read view) via `useScreeningAnswers`, with an **edit link**
      that switches to the `answers` view.
 - Empty "My answers" → placeholder + **"Fill in your answers"** link.
-- Modal closes on button / outside click / Esc. Available for **any** status
-  (works in `ApplicationDetails`, incl. finished).
+- Modal closes on button / outside click / Esc. Available for **any** status (incl. finished).
 - i18n PL/EN.
 
-**Tests (vitest)**
-- composes salary + answers; missing salary shows "—"; empty answers shows the
-  placeholder + link; opens/closes.
+**Tests**
+- Backend (JUnit + H2): `PATCH .../company-research` saves + returns; >1000 → 400;
+  per-application isolation (editing app A leaves app B untouched); JWT-scoped.
+- Frontend (vitest): composes salary + company field + answers; missing salary → "—";
+  editing the company field autosaves for that application; empty answers → placeholder +
+  link; opens/closes.
 
 **DoD**
-- One click opens the cheat sheet for any application with proposed salary + "My
-  answers" on one screen. Tests + lint green.
+- One click opens the cheat sheet for any application with proposed salary +
+  per-application company note (editable) + global "My answers" on one screen.
+  `./mvnw test` and `npm run test:run` + `npm run lint` green.
 
 **Checklist**
+- [ ] Backend: `Application.companyResearch` + `V18` migration + `PATCH .../company-research` (≤1000 → 400)
+- [ ] FE types/api/hook: `companyResearch` + `updateCompanyResearch` (debounced autosave)
 - [ ] `components/applications/CheatSheetModal.tsx` + "Cheat sheet" button in `ApplicationDetails`
-- [ ] Composes proposed salary (`—` when none) + "My answers" read view with edit link
+- [ ] Composes proposed salary (`—` when none) + editable company note + "My answers" read view with edit link
 - [ ] Empty answers → placeholder + "Fill in your answers" link
 - [ ] Closes on button / outside click / Esc; available for any status
 - [ ] i18n PL/EN
-- [ ] Tests + lint green
+- [ ] Backend + frontend tests + lint green
 
 ---
 
@@ -188,5 +212,6 @@ Covers US-3.1 / 3.2. Front-only.
 
 1. `feat(backend): add screening answers resource (entity, repo, service, API, V17)`
 2. `feat(frontend): add "My answers" screening template page`
-3. `feat(frontend): add per-application cheat sheet modal`
-4. `feat(frontend): add board cleanup for stale applications`
+3. `feat(backend): add per-application companyResearch field (V18, PATCH endpoint)`
+4. `feat(frontend): add per-application cheat sheet modal`
+5. `feat(frontend): add board cleanup for stale applications`
