@@ -24,7 +24,8 @@
       "Bash(npx cypress:*)",
       "Bash(./mvnw test *)",
       "Bash(docker-compose --version)",
-      "Read(//mnt/**)"
+      "Read(//mnt/**)",
+      "Bash(./mvnw -q test)"
     ],
     "deny": [
       "Bash(rm -rf *)",

@@ -29,6 +29,7 @@ public record UserExportResponse(
             String source,
             String status,
             String jobDescription,
+            String companyResearch,
             String agency,
             String currentStage,
             String rejectionReason,

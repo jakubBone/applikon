@@ -434,6 +434,65 @@ class ApplicationControllerTest {
                 .andExpect(jsonPath("$.cvFileName").isEmpty());
     }
 
+    // ==================== Per-application company research (cheat sheet) ====================
+
+    @Test
+    @Order(22)
+    @DisplayName("PATCH /api/applications/{id}/company-research - saves and returns the note")
+    void updateCompanyResearch_SavesNote() throws Exception {
+        Application app = createTestApplication("Google", "Dev");
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("companyResearch", "Cloud-first, strong eng culture, interviews focus on DSA.");
+
+        mockMvc.perform(patch("/api/applications/" + app.getId() + "/company-research")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.companyResearch")
+                        .value("Cloud-first, strong eng culture, interviews focus on DSA."));
+
+        assertEquals("Cloud-first, strong eng culture, interviews focus on DSA.",
+                applicationRepository.findById(app.getId()).orElseThrow().getCompanyResearch());
+    }
+
+    @Test
+    @Order(23)
+    @DisplayName("PATCH /api/applications/{id}/company-research - over 1000 chars returns 400")
+    void updateCompanyResearch_TooLong_ReturnsBadRequest() throws Exception {
+        Application app = createTestApplication("Google", "Dev");
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("companyResearch", "x".repeat(1001));
+
+        mockMvc.perform(patch("/api/applications/" + app.getId() + "/company-research")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.companyResearch").exists());
+    }
+
+    @Test
+    @Order(24)
+    @DisplayName("PATCH /api/applications/{id}/company-research - is per-application")
+    void updateCompanyResearch_IsPerApplication() throws Exception {
+        Application appA = createTestApplication("Google", "Dev");
+        Application appB = createTestApplication("Meta", "Dev");
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("companyResearch", "Notes only for A");
+
+        mockMvc.perform(patch("/api/applications/" + appA.getId() + "/company-research")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        // App B is untouched
+        mockMvc.perform(get("/api/applications/" + appB.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.companyResearch").isEmpty());
+    }
+
     // ==================== Helper methods ====================
 
     private Application createTestApplication(String company, String position) {

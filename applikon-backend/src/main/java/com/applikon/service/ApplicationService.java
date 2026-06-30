@@ -144,6 +144,13 @@ public class ApplicationService {
     }
 
     @Transactional
+    public ApplicationResponse updateCompanyResearch(Long id, String companyResearch, UUID userId) {
+        Application application = getApplicationByIdAndUserId(id, userId);
+        application.setCompanyResearch(companyResearch);
+        return ApplicationResponse.fromEntity(applicationRepository.save(application));
+    }
+
+    @Transactional
     public ApplicationResponse update(Long id, ApplicationRequest request, UUID userId) {
         Application application = getApplicationByIdAndUserId(id, userId);
 

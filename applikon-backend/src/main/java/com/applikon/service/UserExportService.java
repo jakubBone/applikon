@@ -109,6 +109,7 @@ public class UserExportService {
                 app.getSource(),
                 app.getStatus() != null ? app.getStatus().name() : null,
                 app.getJobDescription(),
+                app.getCompanyResearch(),
                 app.getAgency(),
                 app.getCurrentStage(),
                 app.getRejectionReason() != null ? app.getRejectionReason().name() : null,
