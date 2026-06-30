@@ -53,9 +53,9 @@ without a plan first; no plan was written without knowing what *not* to do.
 
 ## 🤖 Specs & Config
 
-- **`spec/README.md`** — the spec layout (one folder per version, numbered phases)
-- **`spec/PROCESS.md`** — how specs are written here
-- **`.claude/`** — config directory (commands + skills), shown below:
+- **`spec/README.md`** - start here: the spec map
+- **`spec/PROCESS.md`**- the spec-driven process
+- **`.claude/`** - config directory (commands + skills), shown below:
 
 ```
 .claude/
