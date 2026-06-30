@@ -5,9 +5,11 @@ import com.applikon.dto.UserExportResponse.*;
 import com.applikon.entity.Application;
 import com.applikon.entity.CV;
 import com.applikon.entity.Note;
+import com.applikon.entity.ScreeningAnswer;
 import com.applikon.entity.User;
 import com.applikon.repository.ApplicationRepository;
 import com.applikon.repository.NoteRepository;
+import com.applikon.repository.ScreeningAnswerRepository;
 import com.applikon.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -21,13 +23,16 @@ public class UserExportService {
     private final UserRepository userRepository;
     private final ApplicationRepository applicationRepository;
     private final NoteRepository noteRepository;
+    private final ScreeningAnswerRepository screeningAnswerRepository;
 
     public UserExportService(UserRepository userRepository,
                              ApplicationRepository applicationRepository,
-                             NoteRepository noteRepository) {
+                             NoteRepository noteRepository,
+                             ScreeningAnswerRepository screeningAnswerRepository) {
         this.userRepository = userRepository;
         this.applicationRepository = applicationRepository;
         this.noteRepository = noteRepository;
+        this.screeningAnswerRepository = screeningAnswerRepository;
     }
 
     public UserExportResponse buildExport(UUID userId) {
@@ -43,7 +48,22 @@ public class UserExportService {
                 })
                 .toList();
 
-        return new UserExportResponse(mapProfile(user), appExports);
+        List<ScreeningAnswerExport> answerExports = screeningAnswerRepository
+                .findByUserIdOrderBySortOrder(userId).stream()
+                .map(this::mapScreeningAnswer)
+                .toList();
+
+        return new UserExportResponse(mapProfile(user), appExports, answerExports);
+    }
+
+    private ScreeningAnswerExport mapScreeningAnswer(ScreeningAnswer answer) {
+        return new ScreeningAnswerExport(
+                answer.getQuestionKey(),
+                answer.getLabel(),
+                answer.getAnswer(),
+                answer.isCustom(),
+                answer.getSortOrder()
+        );
     }
 
     private ProfileExport mapProfile(User user) {

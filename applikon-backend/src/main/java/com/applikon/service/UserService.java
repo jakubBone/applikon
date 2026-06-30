@@ -4,6 +4,7 @@ import com.applikon.entity.*;
 import com.applikon.repository.ApplicationRepository;
 import com.applikon.repository.CVRepository;
 import com.applikon.repository.NoteRepository;
+import com.applikon.repository.ScreeningAnswerRepository;
 import com.applikon.repository.UserRepository;
 import com.applikon.security.TokenHasher;
 import jakarta.persistence.EntityNotFoundException;
@@ -34,6 +35,7 @@ public class UserService {
     private final ApplicationRepository applicationRepository;
     private final CVRepository cvRepository;
     private final NoteRepository noteRepository;
+    private final ScreeningAnswerRepository screeningAnswerRepository;
     private final MessageSource messageSource;
 
     public UserService(
@@ -41,11 +43,13 @@ public class UserService {
             ApplicationRepository applicationRepository,
             CVRepository cvRepository,
             NoteRepository noteRepository,
+            ScreeningAnswerRepository screeningAnswerRepository,
             MessageSource messageSource) {
         this.userRepository = userRepository;
         this.applicationRepository = applicationRepository;
         this.cvRepository = cvRepository;
         this.noteRepository = noteRepository;
+        this.screeningAnswerRepository = screeningAnswerRepository;
         this.messageSource = messageSource;
     }
 
@@ -153,7 +157,10 @@ public class UserService {
         // 4. Delete CVs
         cvRepository.deleteAll(cvs);
 
-        // 5. Delete user
+        // 5. Delete screening answers ("My answers")
+        screeningAnswerRepository.deleteByUserId(userId);
+
+        // 6. Delete user
         userRepository.delete(user);
         log.info("User account deleted: {}", userId);
     }

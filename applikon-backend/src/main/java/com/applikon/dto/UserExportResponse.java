@@ -4,7 +4,8 @@ import java.util.List;
 
 public record UserExportResponse(
         ProfileExport profile,
-        List<ApplicationExport> applications
+        List<ApplicationExport> applications,
+        List<ScreeningAnswerExport> screeningAnswers
 ) {
     public record ProfileExport(
             String email,
@@ -47,5 +48,13 @@ public record UserExportResponse(
             String content,
             String category,
             String createdAt
+    ) {}
+
+    public record ScreeningAnswerExport(
+            String questionKey,
+            String label,
+            String answer,
+            boolean custom,
+            int sortOrder
     ) {}
 }
