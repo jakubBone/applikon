@@ -16,7 +16,7 @@
 - Patterns to follow: view tabs in `AppContent.tsx` (kanban/list/cv); banner
   styling from `components/notices/ServiceBanner.tsx`; user-scoped queries like
   `ApplicationRepository.findByUserId`; Flyway migration numbering continues at
-  **V16**; i18n via the `common` namespace (PL/EN).
+  **V17** (V16 is taken by `add_salary_field`); i18n via the `common` namespace (PL/EN).
 
 ---
 
@@ -36,7 +36,7 @@ New per-user screening answers (fixed template + custom questions).
   for the user's set; simplest for autosave at this scale).
 - `controller/ScreeningAnswerController.java` — `/api/screening-answers`:
   `GET` (list, current user) · `PUT` (save full set).
-- `db/migration/V16__screening_answers.sql` — table `screening_answers`, FK
+- `db/migration/V17__screening_answers.sql` — table `screening_answers`, FK
   `user_id → users(id) ON DELETE CASCADE`.
 - RODO consistency: include screening answers in `UserExportService` and ensure
   they are removed in `UserService.deleteAccount` (cascade covers it; verify).
@@ -50,6 +50,15 @@ New per-user screening answers (fixed template + custom questions).
 **DoD**
 - `GET`/`PUT /api/screening-answers` work, scoped to the JWT user.
 - `./mvnw test` green.
+
+**Checklist**
+- [x] Entity `ScreeningAnswer` + `ScreeningAnswerRepository`
+- [x] DTOs + `ScreeningAnswerService` (replace-all upsert; custom with blank label dropped)
+- [x] Controller `GET`/`PUT /api/screening-answers` (JWT-scoped)
+- [x] Migration `V17__screening_answers.sql` (FK `ON DELETE CASCADE`)
+- [x] RODO: export + account deletion include screening answers
+- [x] i18n validation message (PL/EN)
+- [x] Tests green (`./mvnw test`)
 
 ---
 
@@ -81,6 +90,15 @@ Covers US-1.1 / 1.2 / 1.3.
 - User can fill, edit (autosave), and add/remove custom questions; reload shows
   saved content. `npm run test:run` + `npm run lint` green.
 
+**Checklist**
+- [ ] `types/domain.ts` + `services/api.ts` (`fetchScreeningAnswers`, `saveScreeningAnswers`)
+- [ ] `hooks/useScreeningAnswers.ts` (query + mutation, debounced autosave)
+- [ ] `answers` view in `AppContent.tsx` + `components/answers/MyAnswers.tsx`
+- [ ] Fixed template (5 questions) + add/remove custom questions
+- [ ] Empty state + 1000-char cap with counter
+- [ ] i18n PL/EN (strings + 5 fixed labels)
+- [ ] Tests + lint green
+
 ---
 
 ## Phase 3 — Frontend: Cheat sheet modal
@@ -109,6 +127,14 @@ Covers US-2.1. Depends on Phase 1/2 (reads "My answers").
 - One click opens the cheat sheet for any application with proposed salary + "My
   answers" on one screen. Tests + lint green.
 
+**Checklist**
+- [ ] `components/applications/CheatSheetModal.tsx` + "Cheat sheet" button in `ApplicationDetails`
+- [ ] Composes proposed salary (`—` when none) + "My answers" read view with edit link
+- [ ] Empty answers → placeholder + "Fill in your answers" link
+- [ ] Closes on button / outside click / Esc; available for any status
+- [ ] i18n PL/EN
+- [ ] Tests + lint green
+
 ---
 
 ## Phase 4 — Frontend: Board cleanup
@@ -136,23 +162,31 @@ Covers US-3.1 / 3.2. Front-only.
 - Stale apps (>60 days in `SENT`) get a banner + one-click archive that moves them
   to `FINISHED` as `NO_RESPONSE`. Tests + lint green.
 
+**Checklist**
+- [ ] `utils/stale.ts` — `isStale(app)` (`SENT` && >60 days)
+- [ ] Stale banner on board load (count; hides at zero)
+- [ ] Per-card stale indicator + one-click archive (`REJECTED` + `NO_RESPONSE`)
+- [ ] Banner count recomputes after archive (no persistent dismissal)
+- [ ] i18n PL/EN
+- [ ] Tests + lint green
+
 ---
 
 ## Cross-cutting Definition of Done (whole version)
 
-- All success criteria in `01-brief.md` §5 met.
-- All new UI strings exist in PL **and** EN.
-- Backend `./mvnw test` and frontend `npm run test:run` + `npm run build` green
+- [ ] All success criteria in `01-brief.md` §5 met.
+- [ ] All new UI strings exist in PL **and** EN.
+- [ ] Backend `./mvnw test` and frontend `npm run test:run` + `npm run build` green
   (matches CI).
-- No new dependency, module split, or infrastructure introduced.
-- One optional Cypress E2E happy path: fill "My answers" → open an application's
+- [ ] No new dependency, module split, or infrastructure introduced.
+- [ ] One optional Cypress E2E happy path: fill "My answers" → open an application's
   cheat sheet → see them composed with the proposed salary.
 
 ---
 
 ## Suggested commit sequence (Conventional Commits)
 
-1. `feat(backend): add screening answers resource (entity, repo, service, API, V16)`
+1. `feat(backend): add screening answers resource (entity, repo, service, API, V17)`
 2. `feat(frontend): add "My answers" screening template page`
 3. `feat(frontend): add per-application cheat sheet modal`
 4. `feat(frontend): add board cleanup for stale applications`

@@ -9,7 +9,7 @@ Specifications for Applikon, written **spec-first** (specs before code).
 ## 📐 Conventions
 
 - Each version is its own folder (`v1/`, `v2/`, …), following `PROCESS.md`.
-- v2 artifacts are numbered: `01-brief.md` → `02-user-stories.md` → `03-plan.md`.
+- v2 artifacts are numbered: `01-brief.md` → `02-user-stories.md` → `03-plan.md` → `04-as-built.md`.
 
 ## 🗂️ Structure
 
@@ -35,7 +35,10 @@ spec/
 │   ├── architecture.md          ← package structure, REST endpoints, DB schema, FE
 │   ├── as-built.md              ← plan vs reality, deviations, phase history
 │   └── security.md              ← security rules, auth flow
-├── v2/                          ← Screening Companion (planning)
-│   └── 01-brief.md              ← requirements (cheat sheet + board cleanup, no AI)
+├── v2/                          ← Screening Companion (planning + build)
+│   ├── 01-brief.md              ← requirements (cheat sheet + board cleanup, no AI)
+│   ├── 02-user-stories.md       ← stories, edge cases, acceptance criteria
+│   ├── 03-plan.md               ← phases, tests, per-phase checklists, DoD
+│   └── 04-as-built.md           ← what actually got built (living, per phase)
 └── deployment/                  ← production deployment guides (Hetzner)
 ```
