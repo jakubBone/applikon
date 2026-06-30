@@ -64,13 +64,13 @@ Covers US-1.1 / 1.2 / 1.3.
   autosave** on edit.
 - New view **`answers`** in `AppContent.tsx` (a new view tab next to
   kanban/list/cv) → `components/answers/MyAnswers.tsx`.
-- Fixed template (6 questions, labels via i18n keys): about-me · why-changing ·
-  company-knowledge · project · expected-salary · remote-preference. Each is a
+- Fixed template (5 questions, labels via i18n keys): about-me · why-changing ·
+  company-knowledge · project · expected-salary. Each is a
   plain-text field, **max 1000 chars** with a counter. *"company-knowledge" is
   per-company — its field is a prep reminder in v2.*
 - Add / remove **custom** questions (label + answer); fixed ones not removable.
 - **Empty state**: placeholder + **"Fill in your answers"** action.
-- i18n: PL/EN strings + the 6 fixed labels (`common` namespace).
+- i18n: PL/EN strings + the 5 fixed labels (`common` namespace).
 
 **Tests (vitest)**
 - renders fixed template; typing triggers debounced save.

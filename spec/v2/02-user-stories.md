@@ -22,7 +22,7 @@ I never lose them.
 - The page shows a **fixed template** of standard screening questions, each with a
   plain-text field: tell me about yourself · why are you changing jobs · what do you
   know about our company · briefly describe a project you worked on · expected
-  salary · remote/hybrid preference.
+  salary.
 - *"What do you know about our company" is company-specific — in v2 its field is a
   prep reminder; a per-company answer comes later (with the company brief).*
 - The fixed questions cannot be removed; the candidate **can add and remove their

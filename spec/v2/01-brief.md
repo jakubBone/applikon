@@ -41,7 +41,7 @@ calls can come at any time; most applications end in silence.
 **a) "My answers" — global, per user, written by the user.**
 A page with a template of the standard screening questions, each with a text field:
 tell me about yourself · why are you changing jobs · salary expectations · notice
-period / availability · remote/hybrid preference · English level. The value is the
+period / availability · English level. The value is the
 **template itself** — it tells the junior which questions to expect. The app
 generates nothing: the experience and motivation are the user's own.
 
