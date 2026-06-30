@@ -33,6 +33,11 @@
     "answersTitle": "My answers",
     "editAnswers": "Edit"
   },
+  "stale": {
+    "banner": "Applications with no response for over 60 days: {{n}}. Consider archiving.",
+    "cardBadge": "No response >60 days",
+    "archive": "Archive"
+  },
   "app": {
     "addApplication": "+ Add application",
     "close": "Close",

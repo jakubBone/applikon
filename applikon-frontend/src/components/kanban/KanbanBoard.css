@@ -1,3 +1,59 @@
+/* Stale applications banner (>60 days in SENT) */
+.stale-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 1rem 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fff4e5;
+  border: 1px solid #ffd9a8;
+  border-left: 4px solid #f0932b;
+  border-radius: 8px;
+  color: #8a5a1a;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stale-banner-icon {
+  font-size: 1.1rem;
+}
+
+/* Stale card indicator + one-click archive */
+.card-stale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed #ffd9a8;
+}
+
+.card-stale-badge {
+  color: #b06a13;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.card-stale-archive {
+  flex-shrink: 0;
+  background: #f0932b;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0.7rem;
+  transition: background 0.15s;
+}
+
+.card-stale-archive:hover {
+  background: #e07b12;
+}
+
 /* Kanban Board Container */
 .kanban-board-container {
   position: relative;

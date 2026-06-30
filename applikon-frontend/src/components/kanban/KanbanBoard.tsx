@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next'
 import type { Application, StageUpdateRequest } from '../../types/domain'
 import { isMobile, STATUSES } from './types'
 import { ApplicationCard } from './ApplicationCard'
+import { StaleBanner } from './StaleBanner'
+import { isStale } from '../../utils/stale'
 import { DragOverlayCard } from './DragOverlayCard'
 import { StageModal } from './StageModal'
 import { MoveModal } from './MoveModal'
@@ -277,8 +279,12 @@ function KanbanBoard({ applications, onStatusChange: _onStatusChange, onStageCha
 
   const activeApplication = activeId ? findApplication(activeId) : null
 
+  // Derived from the live query data — recomputes after each archive (no dismissal).
+  const staleCount = applications.filter(isStale).length
+
   return (
     <>
+      <StaleBanner count={staleCount} />
       <div className="kanban-board-container">
         <DndContext
           sensors={sensors}

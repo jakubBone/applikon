@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useTranslation } from 'react-i18next'
 import type { Application, StageUpdateRequest } from '../../types/domain'
 import { isMobile, PREDEFINED_STAGES, REJECTION_REASONS, translateStageName, normalizeStageKey } from './types'
+import { isStale, ARCHIVE_STALE_PAYLOAD } from '../../utils/stale'
 
 export interface ApplicationCardProps {
   application: Application
@@ -124,6 +125,13 @@ export function ApplicationCard({ application, isDragging, onClick, onStageChang
   const isOffer = application.status === 'OFFER'
   const isRejected = application.status === 'REJECTED'
   const isInProcess = application.status === 'IN_PROGRESS'
+  const stale = isStale(application)
+
+  const handleArchiveStale = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onStageChange(application.id, ARCHIVE_STALE_PAYLOAD)
+  }
 
   return (
     <>
@@ -223,6 +231,16 @@ export function ApplicationCard({ application, isDragging, onClick, onStageChang
         <div className="card-date">
           📅 {t('kanban.cardDate')} {new Date(application.appliedAt).toLocaleDateString(i18n.language, { day: 'numeric', month: 'short', year: 'numeric' })}
         </div>
+
+        {/* Stale (>60 days in SENT) — one-click archive as NO_RESPONSE */}
+        {stale && (
+          <div className="card-stale">
+            <span className="card-stale-badge">{t('stale.cardBadge')}</span>
+            <button className="card-stale-archive" onClick={handleArchiveStale}>
+              {t('stale.archive')}
+            </button>
+          </div>
+        )}
       </div>
 
     </>

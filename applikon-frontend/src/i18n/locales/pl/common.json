@@ -33,6 +33,11 @@
     "answersTitle": "Moje odpowiedzi",
     "editAnswers": "Edytuj"
   },
+  "stale": {
+    "banner": "Aplikacje bez odpowiedzi ponad 60 dni: {{n}}. Rozważ archiwizację.",
+    "cardBadge": "Bez odpowiedzi >60 dni",
+    "archive": "Archiwizuj"
+  },
   "app": {
     "addApplication": "+ Dodaj aplikację",
     "close": "Zamknij",
