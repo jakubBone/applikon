@@ -288,9 +288,9 @@ time** (immutable after apply).
 - [x] Same modal UX as General; read-only Q&A on the cheat-sheet tab + details
 - [x] Frontend tests green; backend tests written (run `./mvnw test` — no JDK in-session)
 
-**Follow-up `V20` (second safe step) — pending:**
-- [ ] Drop `applications.company_research` + remove entity field / `ApplicationResponse` /
-  export / `PATCH .../company-research` / i18n / tests — once `V19` is verified green.
+**Follow-up `V20` (second safe step) — done ✅:**
+- [x] Drop `applications.company_research` + remove entity field / `ApplicationResponse` /
+  export / `PATCH .../company-research` / i18n / tests (done after `V19` verified green).
 
 ---
 

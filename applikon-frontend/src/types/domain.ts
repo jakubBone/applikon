@@ -36,7 +36,6 @@ export interface Application {
   link: string | null
   jobDescription: string | null
   rejectionReason: RejectionReason | null
-  companyResearch: string | null
   appliedAt: string
   cvId: number | null
   cvFileName: string | null

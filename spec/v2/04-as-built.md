@@ -21,7 +21,7 @@
 | 3 | Cheat sheet modal + per-application company note | ✅ Built (2026-06-30) |
 | 4 | Frontend: Board cleanup | ✅ Built (2026-06-30) |
 | 5 | UX consolidation (cheat-sheet hub, front-only) | ✅ Built (2026-07-02) |
-| 6 | Per-application questions in "About the company" | ✅ Built (2026-07-02) — `V19` per-application screening answers (see §8); `companyResearch` dormant, `V20` removal pending |
+| 6 | Per-application questions in "About the company" | ✅ Built (2026-07-02) — `V19` per-application screening answers (see §8); `companyResearch` removed in `V20` |
 
 ---
 
@@ -241,7 +241,7 @@ offers a per-card one-click archive as `REJECTED` / `NO_RESPONSE` (v1 enums).
 
 Phases 1–6 built (frontend **120/120**, lint + build green). Phase 6 landed as the
 planned `V19` backend (per-application screening answers) — see §8. The V18
-`companyResearch` column is left **dormant** and dropped in a follow-up `V20`.
+`companyResearch` column was then dropped in `V20`.
 Backend is **not compiled in this workspace (no JDK)**; `./mvnw test` is run on a dev
 machine. **v2 is not yet released** — no CHANGELOG entry, README still omits v2 features,
 app version is still `1.1.0`, no deploy. Release chores are the remaining work.
@@ -326,12 +326,13 @@ the persisted model is clean rather than JSON-in-a-text-column.
 - Tests: `ScreeningAnswerServiceTest` updated for the scoped calls + two new cases
   (per-app scope is set on save; a foreign application is rejected).
 
-### `companyResearch` (V18) — dormant, scheduled for `V20` removal
-The V18 `applications.company_research` column and its `PATCH .../company-research`
-endpoint are **left in place but unused** this round. They are dropped in a **follow-up
-`V20`** (with the entity field / `ApplicationResponse` / export / i18n / tests) as a
-**second safe step**, once `V19` is verified green — so nothing destructive is entangled
-with the feature commit.
+### `companyResearch` (V18) — removed in `V20`
+`V19` shipped and was verified green (backend tests + runtime save), then a **second
+commit** (`V20`) dropped `applications.company_research` and everything hanging off it:
+the entity field, the `ApplicationResponse` / `UserExportResponse` fields,
+`updateCompanyResearch` + `PATCH .../company-research`, the
+`validation.companyResearch.tooLong` i18n keys, and the `ApplicationControllerTest` cases.
+Splitting the destructive drop from the feature kept each step independently verifiable.
 
 ### Frontend
 - Rewired off the JSON-in-`companyResearch` approach onto the per-application endpoint:
