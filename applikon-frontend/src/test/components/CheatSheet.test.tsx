@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import i18n from '../../i18n'
 import { CheatSheet } from '../../components/cheatsheet/CheatSheet'
 import { useScreeningAnswers, useSaveScreeningAnswers } from '../../hooks/useScreeningAnswers'
 import { useUpdateCompanyResearch } from '../../hooks/useApplications'
@@ -12,22 +13,27 @@ vi.mock('../../components/applications/ApplicationForm', () => ({
   ApplicationForm: () => <div data-testid="app-form" />,
 }))
 
+// Assert on the English UI so this spec stays in the repo language and does not
+// couple to the Polish translations. (The rest of the suite runs in 'pl'.)
+beforeAll(async () => { await i18n.changeLanguage('en') })
+afterAll(async () => { await i18n.changeLanguage('pl') })
+
 const makeApp = (o: Partial<Application> = {}): Application =>
   ({
     id: 1,
     company: 'Acme',
-    position: 'Java Dev',
+    position: 'Java Developer',
     status: 'SENT',
     appliedAt: new Date().toISOString(),
     currentStage: null,
     rejectionReason: null,
     salary: 12000,
     currency: 'PLN',
-    companyResearch: 'Fintech, 200 osób',
+    companyResearch: 'Fintech, 200 people',
     ...o,
   }) as Application
 
-describe('CheatSheet (Ściąga hub)', () => {
+describe('CheatSheet hub', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     vi.mocked(useScreeningAnswers).mockReturnValue({ data: [] } as never)
@@ -37,36 +43,36 @@ describe('CheatSheet (Ściąga hub)', () => {
 
   it('shows a hint when there are no applications', () => {
     render(<CheatSheet applications={[]} />)
-    expect(screen.getByText(/Najpierw dodaj aplikację/)).toBeInTheDocument()
+    expect(screen.getByText(/Add an application first/)).toBeInTheDocument()
   })
 
   it('reveals the "About the company" block when expanded', () => {
     render(<CheatSheet applications={[makeApp()]} />)
     // Bars are collapsed by default — content is hidden until the user opens them.
-    expect(screen.queryByText('Twoja stawka')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /O firmie/ }))
-    expect(screen.getByText('Twoja stawka')).toBeInTheDocument()
-    expect(screen.getByText(/Fintech, 200 osób/)).toBeInTheDocument()
+    expect(screen.queryByText('Your salary')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /About the company/ }))
+    expect(screen.getByText('Your salary')).toBeInTheDocument()
+    expect(screen.getByText(/Fintech, 200 people/)).toBeInTheDocument()
   })
 
   it('reveals the "General" block with the fixed questions when expanded', () => {
     render(<CheatSheet applications={[makeApp()]} />)
-    fireEvent.click(screen.getByRole('button', { name: /Ogólne/ }))
-    expect(screen.getByText('Opowiedz coś o sobie')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /General/ }))
+    expect(screen.getByText('Tell us about yourself')).toBeInTheDocument()
   })
 
   it('opens the general-answers editor (modal, not inline)', () => {
     render(<CheatSheet applications={[makeApp()]} />)
-    const editButtons = screen.getAllByRole('button', { name: 'Dodaj/Edytuj' })
+    const editButtons = screen.getAllByRole('button', { name: 'Add/Edit' })
     fireEvent.click(editButtons[editButtons.length - 1]) // the "General" section edit
-    expect(screen.getByText('Ogólne pytania')).toBeInTheDocument()
+    expect(screen.getByText('General questions')).toBeInTheDocument()
   })
 
-  it('opens the "O firmie" editor with add-question (like Ogólne)', () => {
+  it('opens the "About the company" editor with add-question (like General)', () => {
     render(<CheatSheet applications={[makeApp()]} />)
-    const editButtons = screen.getAllByRole('button', { name: 'Dodaj/Edytuj' })
-    fireEvent.click(editButtons[0]) // the "O firmie" section edit
-    expect(screen.getByText('Pytania o firmie')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Dodaj pytanie/ })).toBeInTheDocument()
+    const editButtons = screen.getAllByRole('button', { name: 'Add/Edit' })
+    fireEvent.click(editButtons[0]) // the "About the company" section edit
+    expect(screen.getByText('Company questions')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Add question/ })).toBeInTheDocument()
   })
 })

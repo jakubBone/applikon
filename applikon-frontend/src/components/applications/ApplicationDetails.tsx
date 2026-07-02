@@ -110,7 +110,7 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
 
   const salary = formatSalary(application, i18n.language, t)
 
-  // Status + stage collapsed into one label, e.g. "W procesie (Rozmowa finalna)".
+  // Status + stage collapsed into one label, e.g. "In progress (Final interview)".
   const statusLabel = t(STATUS_CONFIG[application.status].labelKey)
   const statusText = application.currentStage
     ? `${statusLabel} (${translateStageName(application.currentStage, t)})`

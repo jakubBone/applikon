@@ -8,7 +8,7 @@ import './prep.css'
 const MAX_ANSWER = 1000
 
 /**
- * Modal editor for the per-application "O firmie" prep — same layout/behaviour as
+ * Modal editor for the per-application "About the company" prep — same layout/behaviour as
  * the global answers modal (fixed question + add/remove custom questions), but the
  * whole set is saved into the existing `companyResearch` field (no backend change).
  */
@@ -33,7 +33,7 @@ export function CompanyQuestionsModal({ application, onClose }: { application: A
 
   return (
     <div className="prep-modal-overlay" onClick={onClose}>
-      <div className="prep-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
+      <div className="prep-modal" data-cy="company-questions-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
         <div className="prep-modal-head">
           <h2>{t('cheatSheet.editCompanyTitle')}</h2>
           <button className="prep-modal-close" onClick={onClose} aria-label={t('app.close')}>×</button>
@@ -68,14 +68,14 @@ export function CompanyQuestionsModal({ application, onClose }: { application: A
               />
             </div>
           ))}
-          <button className="prep-add-btn" onClick={addCustom}>+ {t('answers.addCustom')}</button>
+          <button className="prep-add-btn" data-cy="prep-add" onClick={addCustom}>+ {t('answers.addCustom')}</button>
           <div className="prep-counter" style={tooLong ? { color: '#c0392b' } : undefined}>
             {serialized.length}/{MAX_COMPANY_LENGTH}
           </div>
         </div>
         <div className="prep-modal-actions">
           <button className="prep-modal-btn cancel" onClick={onClose}>{t('notes.cancel')}</button>
-          <button className="prep-modal-btn save" onClick={save} disabled={isPending || tooLong}>{t('notes.save')}</button>
+          <button className="prep-modal-btn save" data-cy="prep-save" onClick={save} disabled={isPending || tooLong}>{t('notes.save')}</button>
         </div>
       </div>
     </div>

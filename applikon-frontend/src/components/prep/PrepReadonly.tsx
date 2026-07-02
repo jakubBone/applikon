@@ -7,7 +7,7 @@ import type { Application } from '../../types/domain'
 import './prep.css'
 
 /** Read-only "About the company" block: your salary + the company Q&A (the fixed
- *  "Co wiesz o nas?" plus any custom questions). Empty values render as "-". */
+ *  "What do you know about us?" plus any custom questions). Empty values render as "-". */
 export function CompanyPrepReadonly({
   application,
   salary,
@@ -22,7 +22,7 @@ export function CompanyPrepReadonly({
     <div className="prep-qa-list">
       <div className="prep-qa">
         <div className="prep-qa-q"><span>{t('cheatSheet.salaryQuestion')}</span></div>
-        <div className="prep-qa-a">{salary ?? empty}</div>
+        <div className="prep-qa-a" data-cy="cheat-salary">{salary ?? empty}</div>
       </div>
       {items.map((item, i) => (
         <div className="prep-qa" key={i}>

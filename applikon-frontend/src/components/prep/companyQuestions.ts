@@ -1,9 +1,9 @@
 import type { Application } from '../../types/domain'
 
 // The per-application company prep is stored in the existing `companyResearch` TEXT
-// field (≤1000). We keep it as a JSON array so "O firmie" can hold the fixed
-// "Co wiesz o nas?" question plus the user's own custom questions — the same shape
-// as the global answers, but scoped to one application, with no backend change.
+// field (≤1000). We keep it as a JSON array so the "About the company" section can hold
+// the fixed "What do you know about us?" question plus the user's own custom questions —
+// the same shape as the global answers, scoped to one application, with no backend change.
 export const FIXED_COMPANY_KEY = 'company-knowledge'
 export const MAX_COMPANY_LENGTH = 1000
 
@@ -16,7 +16,7 @@ export interface CompanyItem {
 const fixedItem = (answer = ''): CompanyItem => ({ label: null, answer, custom: false })
 
 /** Parse `companyResearch` into items. Legacy plain-text notes (pre-JSON) become the
- *  answer to the fixed "Co wiesz o nas?" question, so nothing is lost. */
+ *  answer to the fixed "What do you know about us?" question, so nothing is lost. */
 export function parseCompanyItems(raw: string | null | undefined): CompanyItem[] {
   if (!raw || !raw.trim()) return [fixedItem()]
   try {

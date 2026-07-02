@@ -13,9 +13,9 @@ const COMPANY_ACCENT = '#0ea5a5' // teal
 const GLOBAL_ACCENT = '#667eea' // violet
 
 /**
- * "Ściąga" — the single preparation hub. Pick a company, then read its prep in two
+ * Cheat sheet — the single preparation hub. Pick a company, then read its prep in two
  * collapsible blocks (About the company / General). Everything is read-only here;
- * editing opens a focused modal (or the app form for salary).
+ * editing opens a focused modal.
  */
 export function CheatSheet({ applications }: { applications: Application[] }) {
   const { t, i18n } = useTranslation()
@@ -40,6 +40,7 @@ export function CheatSheet({ applications }: { applications: Application[] }) {
         <span className="prep-field-label">{t('cheatSheet.pickCompany')}</span>
         <select
           className="prep-select"
+          data-cy="cheat-picker"
           value={selectedId ?? ''}
           onChange={e => setSelectedId(Number(e.target.value))}
         >
@@ -55,7 +56,8 @@ export function CheatSheet({ applications }: { applications: Application[] }) {
             title={t('cheatSheet.companySection')}
             icon="🏢"
             accent={COMPANY_ACCENT}
-            action={<button className="prep-edit-link" onClick={() => setEditNote(true)}>{t('cheatSheet.edit')}</button>}
+            dataCy="section-company"
+            action={<button className="prep-edit-link" data-cy="edit-company" onClick={() => setEditNote(true)}>{t('cheatSheet.edit')}</button>}
           >
             <CompanyPrepReadonly application={selected} salary={salary} />
           </CollapsibleSection>
@@ -64,7 +66,8 @@ export function CheatSheet({ applications }: { applications: Application[] }) {
             title={t('cheatSheet.globalSection')}
             icon="💬"
             accent={GLOBAL_ACCENT}
-            action={<button className="prep-edit-link" onClick={() => setEditGlobal(true)}>{t('cheatSheet.edit')}</button>}
+            dataCy="section-general"
+            action={<button className="prep-edit-link" data-cy="edit-general" onClick={() => setEditGlobal(true)}>{t('cheatSheet.edit')}</button>}
           >
             <GlobalAnswersReadonly />
           </CollapsibleSection>
