@@ -4,7 +4,6 @@ import com.applikon.dto.ApplicationRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -61,11 +60,6 @@ public class Application {
 
     @Column(columnDefinition = "TEXT")
     private String jobDescription;
-
-    // Per-application "what do you know about this company" note, edited in the cheat sheet.
-    @Size(max = 1000, message = "{validation.companyResearch.tooLong}")
-    @Column(columnDefinition = "TEXT")
-    private String companyResearch;
 
     private String agency;
 

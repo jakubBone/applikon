@@ -10,7 +10,6 @@ import com.applikon.service.CVService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -113,16 +112,6 @@ public class ApplicationController {
         return ResponseEntity.ok(applicationService.addStage(id, request.stageName(), user.id()));
     }
 
-    @PatchMapping("/{id}/company-research")
-    public ResponseEntity<ApplicationResponse> updateCompanyResearch(
-            @AuthenticationPrincipal AuthenticatedUser user,
-            @PathVariable Long id,
-            @Valid @RequestBody CompanyResearchRequest request) {
-        return ResponseEntity.ok(applicationService.updateCompanyResearch(id, request.companyResearch(), user.id()));
-    }
-
     public record AssignCVRequest(Long cvId) {}
     public record AddStageRequest(@NotBlank(message = "{validation.stage.required}") String stageName) {}
-    public record CompanyResearchRequest(
-            @Size(max = 1000, message = "{validation.companyResearch.tooLong}") String companyResearch) {}
 }
