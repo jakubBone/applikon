@@ -2,10 +2,15 @@ package com.applikon.service;
 
 import com.applikon.dto.ScreeningAnswerRequest;
 import com.applikon.dto.ScreeningAnswerResponse;
+import com.applikon.entity.Application;
 import com.applikon.entity.ScreeningAnswer;
 import com.applikon.entity.User;
+import com.applikon.repository.ApplicationRepository;
 import com.applikon.repository.ScreeningAnswerRepository;
 import com.applikon.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,27 +19,37 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Manages a user's global "My answers" screening template.
+ * Manages screening answers in two scopes:
+ * <ul>
+ *   <li>the user's global "My answers" template (application_id IS NULL), and</li>
+ *   <li>a per-application "About the company" set (application_id set).</li>
+ * </ul>
  *
- * Saving is a replace-all upsert: the user's existing set is removed and the incoming
- * set is re-inserted. At this scale (a handful of rows per user) this is the simplest
- * correct strategy for debounced autosave.
+ * Saving is a replace-all upsert within a scope: the existing set for that scope is removed
+ * and the incoming set re-inserted. At this scale (a handful of rows) this is the simplest
+ * correct strategy for debounced autosave, and it never touches the other scope's rows.
  */
 @Service
 public class ScreeningAnswerService {
 
     private final ScreeningAnswerRepository screeningAnswerRepository;
     private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
+    private final MessageSource messageSource;
 
     public ScreeningAnswerService(ScreeningAnswerRepository screeningAnswerRepository,
-                                  UserRepository userRepository) {
+                                  UserRepository userRepository,
+                                  ApplicationRepository applicationRepository,
+                                  MessageSource messageSource) {
         this.screeningAnswerRepository = screeningAnswerRepository;
         this.userRepository = userRepository;
+        this.applicationRepository = applicationRepository;
+        this.messageSource = messageSource;
     }
 
     @Transactional(readOnly = true)
     public List<ScreeningAnswerResponse> findByUser(UUID userId) {
-        return screeningAnswerRepository.findByUserIdOrderBySortOrder(userId).stream()
+        return screeningAnswerRepository.findByUserIdAndApplicationIdIsNullOrderBySortOrder(userId).stream()
                 .map(ScreeningAnswerResponse::fromEntity)
                 .toList();
     }
@@ -42,8 +57,28 @@ public class ScreeningAnswerService {
     @Transactional
     public List<ScreeningAnswerResponse> save(UUID userId, List<ScreeningAnswerRequest> requests) {
         User userRef = userRepository.getReferenceById(userId);
-        screeningAnswerRepository.deleteByUserId(userId);
+        screeningAnswerRepository.deleteByUserIdAndApplicationIdIsNull(userId);
+        return persist(userRef, null, requests);
+    }
 
+    @Transactional(readOnly = true)
+    public List<ScreeningAnswerResponse> findByUserAndApplication(UUID userId, Long applicationId) {
+        requireOwnedApplication(applicationId, userId);
+        return screeningAnswerRepository.findByUserIdAndApplicationIdOrderBySortOrder(userId, applicationId).stream()
+                .map(ScreeningAnswerResponse::fromEntity)
+                .toList();
+    }
+
+    @Transactional
+    public List<ScreeningAnswerResponse> saveForApplication(UUID userId, Long applicationId, List<ScreeningAnswerRequest> requests) {
+        requireOwnedApplication(applicationId, userId);
+        User userRef = userRepository.getReferenceById(userId);
+        Application applicationRef = applicationRepository.getReferenceById(applicationId);
+        screeningAnswerRepository.deleteByUserIdAndApplicationId(userId, applicationId);
+        return persist(userRef, applicationRef, requests);
+    }
+
+    private List<ScreeningAnswerResponse> persist(User userRef, Application application, List<ScreeningAnswerRequest> requests) {
         List<ScreeningAnswer> toSave = new ArrayList<>();
         int order = 0;
         for (ScreeningAnswerRequest request : requests) {
@@ -53,6 +88,7 @@ public class ScreeningAnswerService {
             }
             ScreeningAnswer entity = new ScreeningAnswer();
             entity.setUser(userRef);
+            entity.setApplication(application);
             entity.setQuestionKey(request.questionKey());
             entity.setLabel(request.label());
             entity.setAnswer(request.answer());
@@ -64,5 +100,12 @@ public class ScreeningAnswerService {
         return screeningAnswerRepository.saveAll(toSave).stream()
                 .map(ScreeningAnswerResponse::fromEntity)
                 .toList();
+    }
+
+    private void requireOwnedApplication(Long applicationId, UUID userId) {
+        if (!applicationRepository.existsByIdAndUserId(applicationId, userId)) {
+            throw new EntityNotFoundException(messageSource.getMessage(
+                    "error.application.notFound", new Object[]{applicationId}, LocaleContextHolder.getLocale()));
+        }
     }
 }

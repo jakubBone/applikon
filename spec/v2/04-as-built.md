@@ -21,7 +21,7 @@
 | 3 | Cheat sheet modal + per-application company note | ✅ Built (2026-06-30) |
 | 4 | Frontend: Board cleanup | ✅ Built (2026-06-30) |
 | 5 | UX consolidation (cheat-sheet hub, front-only) | ✅ Built (2026-07-02) |
-| 6 | Per-application questions in "About the company" | ✅ Built (2026-07-02) — **front-only** (see §8), not `V19` |
+| 6 | Per-application questions in "About the company" | ✅ Built (2026-07-02) — `V19` per-application screening answers (see §8); `companyResearch` dormant, `V20` removal pending |
 
 ---
 
@@ -149,6 +149,11 @@ with debounced autosave to the Phase 1 resource.
 proposed salary + an editable per-application company note + the global "My answers".
 Adds the per-application `companyResearch` field (the agreed scope change).
 
+> **Superseded in Phase 6:** `companyResearch` was later replaced by per-application
+> `screening_answers` rows (`V19`). The V18 column + `PATCH .../company-research` are now
+> **dormant**, scheduled for removal in `V20`. This section stays as the Phase 3 record —
+> see §8 for the current mechanism.
+
 ### Backend
 
 | File | What it is |
@@ -234,10 +239,12 @@ offers a per-card one-click archive as `REJECTED` / `NO_RESPONSE` (v1 enums).
 
 ## 6. v2 status
 
-Phases 1–6 built (backend **130/130**, frontend **120/120**, lint + build green) —
-Phase 6 delivered front-only (see §8), so no backend change this round.
-**v2 is not yet released** — no CHANGELOG entry, README still omits v2 features, app
-version is still `1.1.0`, no deploy. Release chores are the remaining work.
+Phases 1–6 built (frontend **120/120**, lint + build green). Phase 6 landed as the
+planned `V19` backend (per-application screening answers) — see §8. The V18
+`companyResearch` column is left **dormant** and dropped in a follow-up `V20`.
+Backend is **not compiled in this workspace (no JDK)**; `./mvnw test` is run on a dev
+machine. **v2 is not yet released** — no CHANGELOG entry, README still omits v2 features,
+app version is still `1.1.0`, no deploy. Release chores are the remaining work.
 
 ---
 
@@ -283,39 +290,65 @@ No backend change.
 
 - Editing switched from **debounced autosave → explicit Save modals** at the user's
   request (edit → a dialog like the add-application form → confirm).
-- **Per-application custom questions in "About the company" were first deferred to Phase 6**
-  (backend), then delivered front-only — see §8.
+- **Per-application custom questions in "About the company" moved to Phase 6** — first
+  tried front-only, then reworked to the `V19` backend before release — see §8.
 
 ---
 
-## 8. Phase 6 — Per-application questions in "About the company" ✅ (front-only)
+## 8. Phase 6 — Per-application questions in "About the company" ✅
 
-**Built (2026-07-02).** Deviates from the `03-plan.md` design (which called for a
-backend `V19` adding `screening_answers.application_id`). Two reasons drove the change:
+**Built (2026-07-02).** "About the company" holds a fixed "What do you know about us?"
+question **plus the user's own custom questions**, scoped to one application.
 
-1. The `applikon-backend` sources are **not present in this workspace**, so a schema
-   migration could not be written or tested here.
-2. It turned out **no backend change is needed**: "About the company" now holds a fixed
-   "What do you know about us?" question **plus the user's own custom questions**, and the
-   whole set is stored in the **existing `companyResearch` TEXT field** as a small JSON
-   array (saved through the existing `PATCH .../company-research`).
+An earlier intermediate build stored the whole set as JSON in the existing
+`companyResearch` TEXT field (no backend change). Because v2 is **not yet released**, that
+interim was superseded — before shipping — by the planned normalized backend (`V19`), so
+the persisted model is clean rather than JSON-in-a-text-column.
 
-### How it works
-- `prep/companyQuestions.ts` — `parseCompanyItems` / `serializeCompanyItems`. Legacy
-  plain-text notes are read as the answer to the fixed question, so nothing is lost.
-- `prep/CompanyQuestionsModal.tsx` — the "About the company" editor, **visually identical
-  to the global answers modal** (fixed question + add/remove custom, Save), responsive
-  (bottom-sheet on mobile). A live counter enforces the field's existing **1000-char**
-  cap (Save disabled past it). Replaced the old single-textarea `CompanyNoteModal`.
-- `PrepReadonly.tsx` renders the parsed Q&A list read-only on the cheat-sheet tab and in
-  the details accordion.
+### Backend (`V19`, additive)
+- `db/migration/V19__screening_answers_application_scope.sql` — adds
+  `screening_answers.application_id BIGINT` (nullable FK → `applications(id)`
+  `ON DELETE CASCADE`) + index `(user_id, application_id)`. A **NULL** `application_id`
+  is a global "My answers" row (unchanged); a set value scopes the row to one application.
+- `entity/ScreeningAnswer.java` — nullable `@ManyToOne Application application`
+  (`@OnDelete(CASCADE)`).
+- `repository/ScreeningAnswerRepository.java` — scoped finders/deletes
+  (`…ApplicationIdIsNull…` for global, `…ApplicationId…` for per-app). The existing
+  "all rows" `findByUserIdOrderBySortOrder` / `deleteByUserId` are **kept** — the GDPR
+  export and account deletion intentionally cover both scopes.
+- `service/ScreeningAnswerService.java` — global find/save now filter
+  `application_id IS NULL`, so per-app rows never leak into the global set and saving one
+  scope never wipes the other. New `findByUserAndApplication` / `saveForApplication` each
+  verify the application belongs to the user (`existsByIdAndUserId`) before touching rows.
+- `controller/ApplicationScreeningAnswerController.java` — `GET`/`PUT
+  /api/applications/{id}/screening-answers`; the global `/api/screening-answers` endpoints
+  are unchanged.
+- Tests: `ScreeningAnswerServiceTest` updated for the scoped calls + two new cases
+  (per-app scope is set on save; a foreign application is rejected).
 
-### Trade-off / future
-- Structured data in a TEXT column is a pragmatic interim. If/when the backend is
-  available, a real `V19` (`screening_answers.application_id`) can supersede this and
-  migrate the JSON into rows — the frontend contract (a list of Q&A per application)
-  stays the same. Also affects the GDPR export (companyResearch now travels as JSON).
-- Frontend suite **120/120**; `lint` + `build` green; `tsc` unchanged (13 baseline).
+### `companyResearch` (V18) — dormant, scheduled for `V20` removal
+The V18 `applications.company_research` column and its `PATCH .../company-research`
+endpoint are **left in place but unused** this round. They are dropped in a **follow-up
+`V20`** (with the entity field / `ApplicationResponse` / export / i18n / tests) as a
+**second safe step**, once `V19` is verified green — so nothing destructive is entangled
+with the feature commit.
+
+### Frontend
+- Rewired off the JSON-in-`companyResearch` approach onto the per-application endpoint:
+  new `useApplicationScreeningAnswers` / `useSaveApplicationScreeningAnswers` hooks +
+  `fetchApplicationScreeningAnswers` / `saveApplicationScreeningAnswers` api calls.
+- `prep/CompanyQuestionsModal.tsx` and `prep/PrepReadonly.tsx` read/write per-application
+  screening answers (fixed `company-knowledge` key + custom questions); the modal seeds
+  its editor only once the set has loaded, so custom questions are never lost. The editor
+  stays **visually identical to the global answers modal** (fixed question + add/remove
+  custom, Save). `prep/companyQuestions.ts` (the JSON shim) was **deleted**;
+  `FIXED_COMPANY_KEY` moved to `prep/globalAnswers.ts`.
+
+### Verification
+- Frontend **120/120** (`npm run test:run`); `lint` + `build` green; `tsc` unchanged
+  (13 baseline, none in touched files).
+- Backend **not compiled in this workspace (no JDK)** — `./mvnw test` runs on a dev
+  machine.
 
 ### Also in this pass (cheat-sheet polish, agreed with user)
 - Section edit reads **"Add/Edit"**; ⋮ delete gets **🗑️**.

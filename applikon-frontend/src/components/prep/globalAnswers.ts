@@ -2,12 +2,16 @@ import type { ScreeningAnswer, ScreeningAnswerRequest } from '../../types/domain
 
 // Fixed template — stable keys; labels come from i18n (answers.questions.<key>).
 // These are global (one set per user). "What do you know about the company" is NOT
-// here — it is per-application (Application.companyResearch).
+// here — it is a per-application screening answer keyed by FIXED_COMPANY_KEY.
 export const FIXED_QUESTION_KEYS = [
   'about-me',
   'why-changing',
   'project',
 ] as const
+
+// Stable question key for the fixed "What do you know about us?" answer, stored as a
+// per-application screening answer (application_id set) rather than a global one.
+export const FIXED_COMPANY_KEY = 'company-knowledge'
 
 export const MAX_ANSWER_LENGTH = 1000
 

@@ -154,14 +154,23 @@ export const updateApplicationStage = async (id: number, data: StageUpdateReques
   return response.json() as Promise<Application>
 }
 
-export const updateCompanyResearch = async (id: number, companyResearch: string): Promise<Application> => {
-  const response = await apiFetch(`${API_URL}/applications/${id}/company-research`, {
-    method: 'PATCH',
+export const fetchApplicationScreeningAnswers = async (applicationId: number): Promise<ScreeningAnswer[]> => {
+  const response = await apiFetch(`${API_URL}/applications/${applicationId}/screening-answers`, { headers: getHeaders() })
+  if (!response.ok) throw new Error('api.fetchApplicationScreeningAnswers')
+  return response.json() as Promise<ScreeningAnswer[]>
+}
+
+export const saveApplicationScreeningAnswers = async (
+  applicationId: number,
+  answers: ScreeningAnswerRequest[],
+): Promise<ScreeningAnswer[]> => {
+  const response = await apiFetch(`${API_URL}/applications/${applicationId}/screening-answers`, {
+    method: 'PUT',
     headers: getHeaders('application/json'),
-    body: JSON.stringify({ companyResearch }),
+    body: JSON.stringify({ answers }),
   })
-  if (!response.ok) throw new Error('api.updateCompanyResearch')
-  return response.json() as Promise<Application>
+  if (!response.ok) throw new Error('api.saveApplicationScreeningAnswers')
+  return response.json() as Promise<ScreeningAnswer[]>
 }
 
 export const addStage = async (id: number, stageName: string): Promise<Application> => {

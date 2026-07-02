@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
  *
  * Fixed template questions carry a stable {@code questionKey} (e.g. "about-me") and no label;
  * custom questions carry a user-provided {@code label} and {@code custom = true}.
+ *
+ * A null {@code application} means the answer belongs to the user's global "My answers"
+ * set; a non-null {@code application} scopes it to one application ("About the company").
  */
 @Getter
 @Setter
@@ -33,6 +36,13 @@ public class ScreeningAnswer {
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
+
+    /** When set, scopes this answer to one application ("About the company" prep);
+     *  null for a global "My answers" row. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "application_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Application application;
 
     /** Stable key for a fixed template question; null for custom questions. */
     @Column(name = "question_key", length = 64)

@@ -1,8 +1,7 @@
 import type { ParseKeys } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { useScreeningAnswers } from '../../hooks/useScreeningAnswers'
-import { FIXED_QUESTION_KEYS } from './globalAnswers'
-import { parseCompanyItems } from './companyQuestions'
+import { useScreeningAnswers, useApplicationScreeningAnswers } from '../../hooks/useScreeningAnswers'
+import { FIXED_QUESTION_KEYS, FIXED_COMPANY_KEY } from './globalAnswers'
 import type { Application } from '../../types/domain'
 import './prep.css'
 
@@ -17,19 +16,23 @@ export function CompanyPrepReadonly({
 }) {
   const { t } = useTranslation()
   const empty = t('cheatSheet.empty')
-  const items = parseCompanyItems(application.companyResearch)
+  const { data: answers = [] } = useApplicationScreeningAnswers(application.id)
+  const fixed = answers.find(a => !a.custom && a.questionKey === FIXED_COMPANY_KEY)
+  const custom = answers.filter(a => a.custom)
   return (
     <div className="prep-qa-list">
       <div className="prep-qa">
         <div className="prep-qa-q"><span>{t('cheatSheet.salaryQuestion')}</span></div>
         <div className="prep-qa-a" data-cy="cheat-salary">{salary ?? empty}</div>
       </div>
-      {items.map((item, i) => (
+      <div className="prep-qa">
+        <div className="prep-qa-q"><span>{t('cheatSheet.companyLabel')}</span></div>
+        <div className="prep-qa-a">{fixed?.answer.trim() || empty}</div>
+      </div>
+      {custom.map((a, i) => (
         <div className="prep-qa" key={i}>
-          <div className="prep-qa-q">
-            <span>{item.custom ? (item.label || '') : t('cheatSheet.companyLabel')}</span>
-          </div>
-          <div className="prep-qa-a">{item.answer.trim() || empty}</div>
+          <div className="prep-qa-q"><span>{a.label || ''}</span></div>
+          <div className="prep-qa-a">{a.answer.trim() || empty}</div>
         </div>
       ))}
     </div>

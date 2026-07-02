@@ -1,10 +1,19 @@
 import { useCallback, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchScreeningAnswers, saveScreeningAnswers } from '../services/api'
+import {
+  fetchScreeningAnswers,
+  saveScreeningAnswers,
+  fetchApplicationScreeningAnswers,
+  saveApplicationScreeningAnswers,
+} from '../services/api'
 import type { ScreeningAnswer, ScreeningAnswerRequest } from '../types/domain'
 
 export const screeningAnswerKeys = {
   all: ['screening-answers'] as const,
+}
+
+export const applicationScreeningAnswerKeys = {
+  byApp: (applicationId: number) => ['application-screening-answers', applicationId] as const,
 }
 
 // Collapse rapid keystrokes into a single PUT.
@@ -43,4 +52,30 @@ export function useSaveScreeningAnswers() {
   }, [mutate])
 
   return { ...mutation, saveDebounced }
+}
+
+/**
+ * useApplicationScreeningAnswers — the per-application "About the company" answer set
+ * (ordered). Disabled until an application id is available.
+ */
+export function useApplicationScreeningAnswers(applicationId: number | null) {
+  return useQuery({
+    queryKey: applicationScreeningAnswerKeys.byApp(applicationId ?? 0),
+    queryFn: () => fetchApplicationScreeningAnswers(applicationId as number),
+    enabled: applicationId != null,
+  })
+}
+
+/**
+ * useSaveApplicationScreeningAnswers — replace-all save (PUT) for one application's
+ * "About the company" answers.
+ */
+export function useSaveApplicationScreeningAnswers(applicationId: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (answers: ScreeningAnswerRequest[]) => saveApplicationScreeningAnswers(applicationId, answers),
+    onSuccess: (saved) => {
+      queryClient.setQueryData<ScreeningAnswer[]>(applicationScreeningAnswerKeys.byApp(applicationId), saved)
+    },
+  })
 }

@@ -1,21 +1,59 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useUpdateCompanyResearch } from '../../hooks/useApplications'
-import { parseCompanyItems, serializeCompanyItems, MAX_COMPANY_LENGTH, type CompanyItem } from './companyQuestions'
-import type { Application } from '../../types/domain'
+import { useApplicationScreeningAnswers, useSaveApplicationScreeningAnswers } from '../../hooks/useScreeningAnswers'
+import { FIXED_COMPANY_KEY } from './globalAnswers'
+import type { Application, ScreeningAnswer, ScreeningAnswerRequest } from '../../types/domain'
 import './prep.css'
 
 const MAX_ANSWER = 1000
 
+interface Item {
+  label: string | null
+  answer: string
+  custom: boolean
+}
+
+/** Merge the saved per-application answers into the fixed "What do you know about us?"
+ *  question followed by any custom questions. */
+function buildItems(answers: ScreeningAnswer[]): Item[] {
+  const fixed = answers.find(a => !a.custom && a.questionKey === FIXED_COMPANY_KEY)
+  const custom = answers
+    .filter(a => a.custom)
+    .map(a => ({ label: a.label ?? '', answer: a.answer, custom: true }))
+  return [{ label: null, answer: fixed?.answer ?? '', custom: false }, ...custom]
+}
+
+const toRequest = (items: Item[]): ScreeningAnswerRequest[] =>
+  items.map(it =>
+    it.custom
+      ? { questionKey: null, label: it.label, answer: it.answer, custom: true }
+      : { questionKey: FIXED_COMPANY_KEY, label: null, answer: it.answer, custom: false },
+  )
+
 /**
  * Modal editor for the per-application "About the company" prep — same layout/behaviour as
- * the global answers modal (fixed question + add/remove custom questions), but the
- * whole set is saved into the existing `companyResearch` field (no backend change).
+ * the global answers modal (fixed question + add/remove custom questions), saved as a
+ * replace-all set of per-application screening answers.
  */
 export function CompanyQuestionsModal({ application, onClose }: { application: Application; onClose: () => void }) {
+  const { data, isLoading } = useApplicationScreeningAnswers(application.id)
+  // Seed the editor only once the saved set is loaded, so custom questions are not lost.
+  if (isLoading) return <div className="prep-modal-overlay" onClick={onClose} />
+  return <CompanyQuestionsEditor applicationId={application.id} initial={data ?? []} onClose={onClose} />
+}
+
+function CompanyQuestionsEditor({
+  applicationId,
+  initial,
+  onClose,
+}: {
+  applicationId: number
+  initial: ScreeningAnswer[]
+  onClose: () => void
+}) {
   const { t } = useTranslation()
-  const { mutate, isPending } = useUpdateCompanyResearch()
-  const [items, setItems] = useState<CompanyItem[]>(() => parseCompanyItems(application.companyResearch))
+  const { mutate, isPending } = useSaveApplicationScreeningAnswers(applicationId)
+  const [items, setItems] = useState<Item[]>(() => buildItems(initial))
 
   const setAnswer = (index: number, value: string) =>
     setItems(items.map((it, i) => (i === index ? { ...it, answer: value } : it)))
@@ -24,12 +62,7 @@ export function CompanyQuestionsModal({ application, onClose }: { application: A
   const addCustom = () => setItems([...items, { label: '', answer: '', custom: true }])
   const removeCustom = (index: number) => setItems(items.filter((_, i) => i !== index))
 
-  const serialized = serializeCompanyItems(items)
-  const tooLong = serialized.length > MAX_COMPANY_LENGTH
-
-  const save = () => {
-    if (!tooLong) mutate({ id: application.id, value: serialized }, { onSuccess: onClose })
-  }
+  const save = () => mutate(toRequest(items), { onSuccess: onClose })
 
   return (
     <div className="prep-modal-overlay" onClick={onClose}>
@@ -66,16 +99,14 @@ export function CompanyQuestionsModal({ application, onClose }: { application: A
                 placeholder={t('answers.answerPlaceholder')}
                 onChange={e => setAnswer(index, e.target.value)}
               />
+              <div className="prep-counter">{item.answer.length}/{MAX_ANSWER}</div>
             </div>
           ))}
           <button className="prep-add-btn" data-cy="prep-add" onClick={addCustom}>+ {t('answers.addCustom')}</button>
-          <div className="prep-counter" style={tooLong ? { color: '#c0392b' } : undefined}>
-            {serialized.length}/{MAX_COMPANY_LENGTH}
-          </div>
         </div>
         <div className="prep-modal-actions">
           <button className="prep-modal-btn cancel" onClick={onClose}>{t('notes.cancel')}</button>
-          <button className="prep-modal-btn save" data-cy="prep-save" onClick={save} disabled={isPending || tooLong}>{t('notes.save')}</button>
+          <button className="prep-modal-btn save" data-cy="prep-save" onClick={save} disabled={isPending}>{t('notes.save')}</button>
         </div>
       </div>
     </div>

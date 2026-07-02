@@ -2,10 +2,13 @@ package com.applikon.service;
 
 import com.applikon.dto.ScreeningAnswerRequest;
 import com.applikon.dto.ScreeningAnswerResponse;
+import com.applikon.entity.Application;
 import com.applikon.entity.ScreeningAnswer;
 import com.applikon.entity.User;
+import com.applikon.repository.ApplicationRepository;
 import com.applikon.repository.ScreeningAnswerRepository;
 import com.applikon.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,12 +18,16 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.MessageSource;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +42,12 @@ class ScreeningAnswerServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ApplicationRepository applicationRepository;
+
+    @Mock
+    private MessageSource messageSource;
 
     @InjectMocks
     private ScreeningAnswerService service;
@@ -59,7 +72,7 @@ class ScreeningAnswerServiceTest {
                 new ScreeningAnswerRequest(null, "Pets?", "A cat", true)
         ));
 
-        verify(screeningAnswerRepository).deleteByUserId(USER_ID);
+        verify(screeningAnswerRepository).deleteByUserIdAndApplicationIdIsNull(USER_ID);
         verify(screeningAnswerRepository).saveAll(savedCaptor.capture());
 
         List<ScreeningAnswer> saved = savedCaptor.getValue();
@@ -69,6 +82,8 @@ class ScreeningAnswerServiceTest {
         assertEquals("Pets?", saved.get(1).getLabel());
         assertEquals(1, saved.get(1).getSortOrder());
         assertEquals(user, saved.get(0).getUser());
+        // Global answers carry no application scope.
+        assertNull(saved.get(0).getApplication());
     }
 
     @Test
@@ -91,7 +106,7 @@ class ScreeningAnswerServiceTest {
 
     @Test
     void findByUser_mapsEntitiesPreservingRepositoryOrder() {
-        when(screeningAnswerRepository.findByUserIdOrderBySortOrder(USER_ID))
+        when(screeningAnswerRepository.findByUserIdAndApplicationIdIsNullOrderBySortOrder(USER_ID))
                 .thenReturn(List.of(answer("about-me", "First", 0), answer("salary", "Second", 1)));
 
         List<ScreeningAnswerResponse> result = service.findByUser(USER_ID);
@@ -101,6 +116,37 @@ class ScreeningAnswerServiceTest {
         assertEquals("First", result.get(0).answer());
         assertEquals(0, result.get(0).sortOrder());
         assertEquals("salary", result.get(1).questionKey());
+    }
+
+    @Test
+    void saveForApplication_scopesRowsToApplication_whenOwned() {
+        Long applicationId = 42L;
+        Application applicationRef = mock(Application.class);
+        when(applicationRepository.existsByIdAndUserId(applicationId, USER_ID)).thenReturn(true);
+        when(userRepository.getReferenceById(USER_ID)).thenReturn(user);
+        when(applicationRepository.getReferenceById(applicationId)).thenReturn(applicationRef);
+        when(screeningAnswerRepository.saveAll(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.saveForApplication(USER_ID, applicationId, List.of(
+                new ScreeningAnswerRequest("company-knowledge", null, "Fintech, 200 people", false)));
+
+        verify(screeningAnswerRepository).deleteByUserIdAndApplicationId(USER_ID, applicationId);
+        verify(screeningAnswerRepository).saveAll(savedCaptor.capture());
+
+        List<ScreeningAnswer> saved = savedCaptor.getValue();
+        assertEquals(1, saved.size());
+        assertEquals("company-knowledge", saved.get(0).getQuestionKey());
+        assertEquals(applicationRef, saved.get(0).getApplication());
+    }
+
+    @Test
+    void saveForApplication_rejectsApplicationNotOwnedByUser() {
+        Long applicationId = 99L;
+        when(applicationRepository.existsByIdAndUserId(applicationId, USER_ID)).thenReturn(false);
+
+        assertThrows(EntityNotFoundException.class, () -> service.saveForApplication(
+                USER_ID, applicationId, List.of(
+                        new ScreeningAnswerRequest("company-knowledge", null, "x", false))));
     }
 
     private ScreeningAnswer answer(String questionKey, String text, int sortOrder) {

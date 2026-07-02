@@ -240,12 +240,12 @@ opens status change.
 decluttered accordion details, consistent style. `npm run test:run` + `lint` + `build` green.
 
 **Checklist**
-- [ ] Cheat-sheet tab: company picker + collapsible 🏢 About the company / 💬 General (read-only)
-- [ ] Edit via modals (General, About the company); salary edit → application form
-- [ ] Details accordion (icon+colour headers); salary out of Information → cheat sheet
-- [ ] Status badge = change status; `In progress (Final interview)` single label
-- [ ] Shared style + typography, short dashes `-`, renames (General / keep About the company)
-- [ ] i18n PL/EN · tests + lint + build green
+- [x] Cheat-sheet tab: company picker + collapsible 🏢 About the company / 💬 General (read-only)
+- [x] Edit via modals (General, About the company); salary read-only in the cheat sheet (§8)
+- [x] Details accordion (icon+colour headers); salary out of Information → cheat sheet
+- [x] Status badge = change status; `In progress (Final interview)` single label
+- [x] Shared style + typography, short dashes `-`, renames (General / keep About the company)
+- [x] i18n PL/EN · tests + lint + build green
 
 ---
 
@@ -253,41 +253,55 @@ decluttered accordion details, consistent style. `npm run test:run` + `lint` + `
 
 Lets **About the company** carry its own custom questions (like General), not just one note.
 
-**Build**
+> **History:** first delivered front-only (custom questions as JSON in the existing
+> `companyResearch` field), then — since v2 is unreleased — reworked to the planned `V19`
+> backend before shipping. See as-built §8.
+
+**Build — backend (`V19`, additive)**
 - `screening_answers` gains a nullable **`application_id`** (FK → `applications`,
   `ON DELETE CASCADE`): `NULL` = global (General), set = per-application (About the company).
-- `db/migration/V19__screening_answers_application_scope.sql` — add column + index;
-  **migrate** existing `Application.companyResearch` into a company-scoped answer row
-  (`questionKey = 'company-knowledge'`); leave the `company_research` column unused (or
-  drop in the same migration — decide at build time).
-- Service/API extended to fetch/save answers **by scope** (global vs a given
-  application), JWT-scoped; replace-all upsert per scope (as today).
-- Frontend: **About the company** becomes the same "fixed + add custom" editor as General (in
-  its modal), pointed at the selected application.
+- `db/migration/V19__screening_answers_application_scope.sql` — add column + index
+  `(user_id, application_id)`. **Additive only, no data backfill** — v2 is unreleased, so
+  the dormant `companyResearch` JSON is not migrated into rows.
+- Service/API extended to fetch/save answers **by scope** (global filters
+  `application_id IS NULL`; per-app verifies ownership via `existsByIdAndUserId`);
+  replace-all upsert per scope (as today), one scope never touching the other.
+- `ApplicationScreeningAnswerController` — `GET`/`PUT
+  /api/applications/{id}/screening-answers`; global endpoints unchanged.
 
-**Tests** — backend: per-application save/fetch, isolation across applications and
-users, migration carries `companyResearch` over; frontend: add/remove custom company
-question in the modal.
+**Build — frontend**
+- **About the company** uses the same "fixed + add custom" editor as General, pointed at
+  the selected application via new per-app hooks/api; the JSON shim (`companyQuestions.ts`)
+  is deleted.
+
+**Tests** — backend: per-application save/fetch, foreign-application rejection, scope
+isolation from the global set; frontend: add/remove custom company question in the modal.
 
 **DoD** — About the company supports custom questions per application, consistent with
 General; `./mvnw test` + `npm run test:run` green. Flyway migration written **once, at build
 time** (immutable after apply).
 
-**Checklist**
-- [ ] `V19` migration (nullable `application_id` + data migration from `companyResearch`)
-- [ ] Entity/repo/service/API scoped to global vs application
-- [ ] Frontend About-the-company modal = fixed + add-custom (mirrors General)
-- [ ] Backend + frontend tests green
+**Delivered ✅**
+- [x] "About the company" = fixed "What do you know about us?" + the user's own custom questions
+- [x] `V19`: `screening_answers.application_id` + scoped repo/service + per-app controller
+- [x] Frontend rewired onto the per-application endpoint; JSON shim deleted
+- [x] Same modal UX as General; read-only Q&A on the cheat-sheet tab + details
+- [x] Frontend tests green; backend tests written (run `./mvnw test` — no JDK in-session)
+
+**Follow-up `V20` (second safe step) — pending:**
+- [ ] Drop `applications.company_research` + remove entity field / `ApplicationResponse` /
+  export / `PATCH .../company-research` / i18n / tests — once `V19` is verified green.
 
 ---
 
 ## Cross-cutting Definition of Done (whole version)
 
-- [ ] All success criteria in `01-brief.md` §5 met.
-- [ ] All new UI strings exist in PL **and** EN.
-- [ ] Backend `./mvnw test` and frontend `npm run test:run` + `npm run build` green
-  (matches CI).
-- [ ] No new dependency, module split, or infrastructure introduced.
-- [ ] One optional Cypress E2E happy path: fill "My answers" → open an application's
-  cheat sheet → see them composed with the proposed salary.
+- [x] All success criteria in `01-brief.md` §5 met.
+- [x] All new UI strings exist in PL **and** EN.
+- [x] Frontend `npm run test:run` (120) + `npm run build` green (matches CI).
+  Backend `V19` written with tests; `./mvnw test` runs on a dev machine (no JDK in-session).
+- [x] No new dependency, module split, or infrastructure introduced.
+- [x] Cypress E2E happy path added (`cypress/e2e/cheat-sheet.cy.ts`, updated for the
+  cheat-sheet hub flow). Not executed in-session (needs a running dev server) — run
+  `npm run e2e` locally to confirm.
 

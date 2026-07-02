@@ -2,12 +2,15 @@ import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vites
 import { render, screen, fireEvent } from '@testing-library/react'
 import i18n from '../../i18n'
 import { CheatSheet } from '../../components/cheatsheet/CheatSheet'
-import { useScreeningAnswers, useSaveScreeningAnswers } from '../../hooks/useScreeningAnswers'
-import { useUpdateCompanyResearch } from '../../hooks/useApplications'
+import {
+  useScreeningAnswers,
+  useSaveScreeningAnswers,
+  useApplicationScreeningAnswers,
+  useSaveApplicationScreeningAnswers,
+} from '../../hooks/useScreeningAnswers'
 import type { Application } from '../../types/domain'
 
 vi.mock('../../hooks/useScreeningAnswers')
-vi.mock('../../hooks/useApplications')
 // The app form is heavy and only used for salary editing — stub it out here.
 vi.mock('../../components/applications/ApplicationForm', () => ({
   ApplicationForm: () => <div data-testid="app-form" />,
@@ -29,7 +32,6 @@ const makeApp = (o: Partial<Application> = {}): Application =>
     rejectionReason: null,
     salary: 12000,
     currency: 'PLN',
-    companyResearch: 'Fintech, 200 people',
     ...o,
   }) as Application
 
@@ -38,7 +40,8 @@ describe('CheatSheet hub', () => {
     vi.resetAllMocks()
     vi.mocked(useScreeningAnswers).mockReturnValue({ data: [] } as never)
     vi.mocked(useSaveScreeningAnswers).mockReturnValue({ mutate: vi.fn(), isPending: false } as never)
-    vi.mocked(useUpdateCompanyResearch).mockReturnValue({ mutate: vi.fn(), isPending: false } as never)
+    vi.mocked(useApplicationScreeningAnswers).mockReturnValue({ data: [], isLoading: false } as never)
+    vi.mocked(useSaveApplicationScreeningAnswers).mockReturnValue({ mutate: vi.fn(), isPending: false } as never)
   })
 
   it('shows a hint when there are no applications', () => {
@@ -47,6 +50,10 @@ describe('CheatSheet hub', () => {
   })
 
   it('reveals the "About the company" block when expanded', () => {
+    vi.mocked(useApplicationScreeningAnswers).mockReturnValue({
+      data: [{ id: 1, questionKey: 'company-knowledge', label: null, answer: 'Fintech, 200 people', custom: false, sortOrder: 0 }],
+      isLoading: false,
+    } as never)
     render(<CheatSheet applications={[makeApp()]} />)
     // Bars are collapsed by default — content is hidden until the user opens them.
     expect(screen.queryByText('Your salary')).not.toBeInTheDocument()
