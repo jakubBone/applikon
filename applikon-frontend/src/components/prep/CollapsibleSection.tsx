@@ -1,11 +1,12 @@
-import { useState, type ReactNode } from 'react'
+import { useState, type CSSProperties, type ReactNode } from 'react'
 import './prep.css'
 
 interface Props {
   title: string
   /** Emoji / node shown before the title, tinted with `accent`. */
   icon?: ReactNode
-  /** Accent colour for the icon + left border, so sections are distinguishable. */
+  /** Accent colour for the icon, left border, and — via `--section-accent` — the
+   *  tinting of the Q&A cards inside the expanded body. */
   accent?: string
   /** Optional control rendered on the right of the header (e.g. an "Edit" link).
    *  Lives outside the toggle button, so clicking it never toggles the section. */
@@ -14,12 +15,17 @@ interface Props {
   children: ReactNode
 }
 
-/** Accordion section (chevron + icon + title) used to declutter prep surfaces. */
+/** Accordion section (chevron + icon + title). The accent colours the inside content
+ *  (not the header bar) so expanded sections are easy to tell apart. */
 export function CollapsibleSection({ title, icon, accent, action, defaultOpen = false, children }: Props) {
   const [open, setOpen] = useState(defaultOpen)
 
+  const rootStyle = accent
+    ? ({ borderLeftColor: accent, '--section-accent': accent } as unknown as CSSProperties)
+    : undefined
+
   return (
-    <div className="collapsible" style={accent ? { borderLeftColor: accent } : undefined}>
+    <div className="collapsible" style={rootStyle}>
       <div className="collapsible-head">
         <button
           type="button"

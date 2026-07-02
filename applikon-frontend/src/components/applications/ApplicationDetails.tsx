@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NotesList } from '../notes/NotesList'
 import { ApplicationForm } from './ApplicationForm'
@@ -258,16 +258,16 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
           icon="📋"
           accent={ACCENT_CHEAT}
         >
-          <div className="prep-subblock">
+          <div className="prep-subblock" style={{ '--section-accent': ACCENT_CHEAT } as unknown as CSSProperties}>
             <div className="prep-subblock-head">
-              <span>🏢 {t('cheatSheet.companySection')}</span>
+              <span style={{ color: ACCENT_CHEAT }}>🏢 {t('cheatSheet.companySection')}</span>
               <button className="prep-edit-link" onClick={() => setEditNote(true)}>{t('cheatSheet.edit')}</button>
             </div>
             <CompanyPrepReadonly application={application} salary={salary} />
           </div>
-          <div className="prep-subblock">
+          <div className="prep-subblock" style={{ '--section-accent': ACCENT_INFO } as unknown as CSSProperties}>
             <div className="prep-subblock-head">
-              <span>💬 {t('cheatSheet.globalSection')}</span>
+              <span style={{ color: ACCENT_INFO }}>💬 {t('cheatSheet.globalSection')}</span>
               <button className="prep-edit-link" onClick={() => setEditGlobal(true)}>{t('cheatSheet.edit')}</button>
             </div>
             <GlobalAnswersReadonly />
