@@ -20,8 +20,8 @@
 | 2 | Frontend: "My answers" page | ✅ Built (2026-06-30) |
 | 3 | Cheat sheet modal + per-application company note | ✅ Built (2026-06-30) |
 | 4 | Frontend: Board cleanup | ✅ Built (2026-06-30) |
-| 5 | UX consolidation ("Ściąga" hub, front-only) | ⏳ In progress |
-| 6 | Per-application questions (backend `V19`) | ⏳ Pending |
+| 5 | UX consolidation ("Ściąga" hub, front-only) | ✅ Built (2026-07-02) |
+| 6 | Per-application questions in "O firmie" | ✅ Built (2026-07-02) — **front-only** (see §8), not `V19` |
 
 ---
 
@@ -234,17 +234,100 @@ offers a per-card one-click archive as `REJECTED` / `NO_RESPONSE` (v1 enums).
 
 ## 6. v2 status
 
-Phases 1–4 built (backend **130/130**, frontend **125/125**, lint + build green).
+Phases 1–6 built (backend **130/130**, frontend **120/120**, lint + build green) —
+Phase 6 delivered front-only (see §8), so no backend change this round.
 **v2 is not yet released** — no CHANGELOG entry, README still omits v2 features, app
-version is still `1.1.0`, no deploy. Phases **5–6** (pre-release UX revision, see
-`03-plan.md`) are in progress before that first release.
+version is still `1.1.0`, no deploy. Release chores are the remaining work.
 
 ---
 
-## 7. Phases 5–6 — UX revision ⏳
+## 7. Phase 5 — UX consolidation ("Ściąga" hub) ✅
 
-⏳ **In progress.** Planned in `03-plan.md`. An earlier intermediate build (shared
-cheat-sheet component + a two-block "Pytania" page + card 📋 icons) was superseded by
-the agreed final design — the **"Ściąga" hub** (tab with a firma picker + collapsible
-🏢 O firmie / 💬 Ogólne, read-only + edit-in-modal), decluttered accordion details, and
-per-application questions (`V19`). To be recorded here as each phase lands.
+**Built (2026-07-02).** Dogfooding *before the first v2 release* showed the prep UI
+had drifted into clutter. An earlier intermediate build (card 📋 icons + inline
+editing everywhere) was superseded by the agreed **read-only + edit-in-modal** design.
+No backend change.
+
+### Decisions (agreed with user)
+
+- **One "Ściąga" hub replaces the "Pytania"/answers tab.** Pick a company at the top,
+  then read its prep in two collapsible bars: **🏢 O firmie** (accent teal) and
+  **💬 Ogólne** (accent violet). Kept the name **"O firmie"**; renamed "Globalne" →
+  **"Ogólne"**. This tab *is* the recruiter-call fast path — the per-card cheat icon
+  was dropped.
+- **Everything read-only; editing is a modal with Save** (like the app form), never
+  inline. Global answers → `GlobalAnswersModal`; company note → `CompanyNoteModal`;
+  proposed salary → the application edit form. Salaries/notes read as `-` when empty.
+- **Details screen is an accordion** with icon + colour headers: **📋 Ściąga** (open) ·
+  **ℹ️ Informacje** · **📄 Opis oferty** · **📝 Notatki**. The **status badge itself is
+  now the change-status control** (click "Wysłane…"), and status + stage collapse into
+  one label, e.g. **"W procesie (Rozmowa finalna)"**. Proposed **salary moved out of
+  Informacje** into the Ściąga section as an editable question-style row.
+- Short dashes `-` throughout; one shared visual language (`prep.css`).
+
+### Files
+
+| File | What it is |
+|------|------------|
+| `components/cheatsheet/CheatSheet.tsx` | The "Ściąga" tab: company picker + two collapsible bars (read-only) + edit-modal triggers |
+| `components/prep/CollapsibleSection.tsx` | Accordion; now takes `icon`, `accent` (colour) and a header `action` slot (edit link outside the toggle button) |
+| `components/prep/PrepReadonly.tsx` | `CompanyPrepReadonly` (salary Q + company note) and `GlobalAnswersReadonly` — shared by the tab and the details accordion |
+| `components/prep/CompanyNoteModal.tsx` | Modal editor for the per-application company note (Save) |
+| `components/prep/GlobalAnswersModal.tsx` | Modal editor for global answers (fixed + custom, Save) |
+| `components/prep/globalAnswers.ts` | Shared template logic (`FIXED_QUESTION_KEYS`, `buildItems`, …) extracted from the old page |
+| `components/applications/ApplicationDetails.tsx` | Rebuilt as accordions; clickable status badge; combined status+stage label; salary read-only via Ściąga |
+| `utils/salary.ts` | Extracted `formatSalary` (shared by tab + details) |
+| i18n `pl`/`en` | `nav.answers` → "Ściąga"/"Cheat sheet"; new `cheatSheet.*` (sections, edit, salaryQuestion, modal titles); `details.sectionCheat`/`sectionNotes` |
+| *removed* | `answers/MyAnswers.*`, `applications/CheatSheetModal.*`, `prep/CompanyNoteField.tsx` + their tests |
+
+### Notes / deviations
+
+- Editing switched from **debounced autosave → explicit Save modals** at the user's
+  request ("edytuj → okienko jak przy dodawaniu aplikacji → zatwierdź").
+- Frontend suite **119/119** (added `CheatSheet.test.tsx`; removed the deleted
+  components' tests); `lint` + `build` green; `tsc --noEmit` unchanged at the repo's
+  13 pre-existing errors (none in the new files).
+- **Per-application custom questions in "O firmie" are intentionally out of scope here**
+  — they need list storage per application and are Phase 6.
+
+---
+
+## 8. Phase 6 — Per-application questions in "O firmie" ✅ (front-only)
+
+**Built (2026-07-02).** Deviates from the `03-plan.md` design (which called for a
+backend `V19` adding `screening_answers.application_id`). Two reasons drove the change:
+
+1. The `applikon-backend` sources are **not present in this workspace**, so a schema
+   migration could not be written or tested here.
+2. It turned out **no backend change is needed**: "O firmie" now holds a fixed
+   "Co wiesz o nas?" question **plus the user's own custom questions**, and the whole
+   set is stored in the **existing `companyResearch` TEXT field** as a small JSON array
+   (saved through the existing `PATCH .../company-research`).
+
+### How it works
+- `prep/companyQuestions.ts` — `parseCompanyItems` / `serializeCompanyItems`. Legacy
+  plain-text notes are read as the answer to the fixed question, so nothing is lost.
+- `prep/CompanyQuestionsModal.tsx` — the "O firmie" editor, **visually identical to the
+  global answers modal** (fixed question + add/remove custom, Save), responsive
+  (bottom-sheet on mobile). A live counter enforces the field's existing **1000-char**
+  cap (Save disabled past it).
+- `PrepReadonly.tsx` renders the parsed Q&A list read-only on the Ściąga tab and in the
+  details accordion.
+- Replaced the old single-textarea `CompanyNoteModal`.
+
+### Trade-off / future
+- Structured data in a TEXT column is a pragmatic interim. If/when the backend is
+  available, a real `V19` (`screening_answers.application_id`) can supersede this and
+  migrate the JSON into rows — the frontend contract (a list of Q&A per application)
+  stays the same. Also affects the RODO export (companyResearch now travels as JSON).
+- Frontend suite **120/120**; `lint` + `build` green; `tsc` unchanged (13 baseline).
+
+### Also in this pass (Ściąga polish, agreed with user)
+- Tab shows **📋 Ściąga**; section edit reads **"Dodaj/Edytuj"**; ⋮ delete gets **🗑️**.
+- "Twoja stawka" is read-only; general questions dropped "expected salary" (it lives in
+  "O firmie" now); "Co wiesz o tej firmie?" → **"Co wiesz o nas?"**.
+- Details status: **"W procesie" always opens the stage picker** (so the stage can be
+  changed even when already in progress); status dialog is a **centered modal on
+  desktop, bottom-sheet on mobile**.
+- Readability: Q&A and Informacje rows as rounded cards; bigger sub-headers; custom
+  question titles render black/bold; "Dodaj pytanie" is a filled button.
