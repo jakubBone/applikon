@@ -1,12 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
-import { useTranslation, type TFunction } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { NotesList } from '../notes/NotesList'
 import { ApplicationForm } from './ApplicationForm'
-import { CheatSheetModal } from './CheatSheetModal'
 import { StageModal } from '../kanban/StageModal'
 import { EndModal } from '../kanban/EndModal'
+import { CollapsibleSection } from '../prep/CollapsibleSection'
+import { CompanyPrepReadonly, GlobalAnswersReadonly } from '../prep/PrepReadonly'
+import { CompanyQuestionsModal } from '../prep/CompanyQuestionsModal'
+import { GlobalAnswersModal } from '../prep/GlobalAnswersModal'
 import { downloadCV } from '../../services/api'
 import { isSafeUrl } from '../../utils/urlValidator'
+import { formatSalary } from '../../utils/salary'
 import { STATUS_CONFIG } from '../../constants/applicationStatus'
 import { translateStageName, STATUSES } from '../kanban/types'
 import type { Application, StageUpdateRequest } from '../../types/domain'
@@ -29,36 +33,11 @@ function formatDate(dateString: string, locale: string): string {
   })
 }
 
-const CONTRACT_TYPE_KEYS: Record<string, string> = {
-  B2B: 'salary.contractB2B',
-  EMPLOYMENT: 'salary.contractEmployment',
-  MANDATE: 'salary.contractMandate',
-  OTHER: 'salary.contractOther',
-}
-
-function formatSalary(app: Application, locale: string, t: TFunction): string | null {
-  if (!app.salary && !app.salaryMin) return null
-
-  let salaryStr: string
-  if (app.salary && !app.salaryMin) {
-    salaryStr = app.salary.toLocaleString(locale)
-  } else {
-    salaryStr = app.salaryMin!.toLocaleString(locale)
-    if (app.salaryMax) {
-      salaryStr += ` - ${app.salaryMax.toLocaleString(locale)}`
-    }
-  }
-  salaryStr += ` ${app.currency ?? 'PLN'}`
-
-  const extras: string[] = []
-  if (app.salaryType) extras.push(app.salaryType.toLowerCase())
-  if (app.contractType) extras.push(t((CONTRACT_TYPE_KEYS[app.contractType] ?? 'salary.contractOther') as Parameters<typeof t>[0]))
-  if (extras.length > 0) {
-    salaryStr += ` (${extras.join(', ')})`
-  }
-
-  return salaryStr
-}
+// Distinct accents so the accordion sections are instantly distinguishable.
+const ACCENT_CHEAT = '#0ea5a5'
+const ACCENT_INFO = '#667eea'
+const ACCENT_JOB = '#e08e0b'
+const ACCENT_NOTES = '#9b59b6'
 
 export function ApplicationDetails({ application, onBack, onDelete, onStageChange, applications }: Props) {
   const { t, i18n } = useTranslation()
@@ -69,7 +48,8 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null)
   const [stageModalOpen, setStageModalOpen] = useState(false)
   const [endModalOpen, setEndModalOpen] = useState(false)
-  const [cheatSheetOpen, setCheatSheetOpen] = useState(false)
+  const [editNote, setEditNote] = useState(false)
+  const [editGlobal, setEditGlobal] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const currentColumn = application.status === 'OFFER' || application.status === 'REJECTED'
@@ -81,13 +61,21 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
     return applications.filter(a => a.status === statusId).length
   }
 
+  const openStatusChange = () => {
+    setSelectedStatus(currentColumn)
+    setMoveModalOpen(true)
+  }
+
   const handleMoveConfirm = () => {
-    if (!selectedStatus || selectedStatus === currentColumn) { setMoveModalOpen(false); return }
+    if (!selectedStatus) { setMoveModalOpen(false); return }
+    // "In progress" always routes to the stage picker — even when the application
+    // is already in progress, so the specific stage can be changed (like Kanban).
     if (selectedStatus === 'IN_PROGRESS') {
       setMoveModalOpen(false)
       setStageModalOpen(true)
       return
     }
+    if (selectedStatus === currentColumn) { setMoveModalOpen(false); return }
     if (selectedStatus === 'FINISHED') {
       setMoveModalOpen(false)
       setEndModalOpen(true)
@@ -122,29 +110,19 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
 
   const salary = formatSalary(application, i18n.language, t)
 
+  // Status + stage collapsed into one label, e.g. "W procesie (Rozmowa finalna)".
+  const statusLabel = t(STATUS_CONFIG[application.status].labelKey)
+  const statusText = application.currentStage
+    ? `${statusLabel} (${translateStageName(application.currentStage, t)})`
+    : statusLabel
+
   return (
     <div className="details-view">
       <div className="details-nav">
         <button className="back-btn" onClick={onBack}>
           {t('details.back')}
         </button>
-        <div className="details-nav-actions">
-          <button className="cheat-sheet-btn" onClick={() => setCheatSheetOpen(true)}>
-            {t('cheatSheet.button')}
-          </button>
-          <button className="change-status-btn" onClick={() => { setSelectedStatus(currentColumn); setMoveModalOpen(true) }}>
-            {t('details.changeStatus')}
-          </button>
-        </div>
       </div>
-
-      {cheatSheetOpen && (
-        <CheatSheetModal
-          application={application}
-          salary={salary}
-          onClose={() => setCheatSheetOpen(false)}
-        />
-      )}
 
       <div className="details-header">
         <div className="details-title">
@@ -167,7 +145,7 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
                     className="context-menu-item danger"
                     onClick={() => { setShowMenu(false); setShowDeleteConfirm(true) }}
                   >
-                    {t('table.delete')}
+                    🗑️ {t('table.delete')}
                   </button>
                 </div>
               )}
@@ -179,11 +157,11 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
               className="status-badge large"
               style={{ backgroundColor: STATUS_CONFIG[application.status].color }}
             >
-              {t(STATUS_CONFIG[application.status].labelKey)}
+              {statusText}
             </span>
-            {application.currentStage && (
-              <span className="current-stage-badge">{translateStageName(application.currentStage, t)}</span>
-            )}
+            <button className="status-edit-btn" onClick={openStatusChange}>
+              ✏️ {t('details.changeStatus')}
+            </button>
           </div>
         </div>
       </div>
@@ -195,6 +173,9 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
           onClose={() => setShowEditForm(false)}
         />
       )}
+
+      {editNote && <CompanyQuestionsModal application={application} onClose={() => setEditNote(false)} />}
+      {editGlobal && <GlobalAnswersModal onClose={() => setEditGlobal(false)} />}
 
       {showDeleteConfirm && (
         <div className="confirm-modal-overlay">
@@ -214,39 +195,42 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
         </div>
       )}
 
-      {/* Status change bottom sheet */}
+      {/* Status change — centered dialog (not a mobile-style bottom sheet) */}
       {moveModalOpen && (
-        <div className="move-modal" onClick={() => setMoveModalOpen(false)}>
-          <div className="move-modal-content" onClick={e => e.stopPropagation()}>
-            <div className="move-modal-header">
-              <div className="move-modal-title">{t('moveModal.title')}</div>
+        <div className="prep-modal-overlay" onClick={() => setMoveModalOpen(false)}>
+          <div className="prep-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="prep-modal-head">
+              <h2>{t('moveModal.title')}</h2>
+              <button className="prep-modal-close" onClick={() => setMoveModalOpen(false)} aria-label={t('app.close')}>×</button>
             </div>
-            <div className="move-options">
-              {STATUSES.map(status => {
-                const isCurrent = status.id === currentColumn
-                const isSelected = status.id === selectedStatus
-                return (
-                  <div
-                    key={status.id}
-                    className={`move-option ${isSelected ? 'selected' : ''} ${isCurrent ? 'current' : ''}`}
-                    onClick={() => !isCurrent && setSelectedStatus(status.id)}
-                  >
-                    <div className="move-option-radio"></div>
-                    <div className="move-option-color" style={{ background: status.color }}></div>
-                    <div className="move-option-text">
-                      <div className="move-option-name">{t(status.labelKey)}</div>
-                      <div className="move-option-count">{t('moveModal.appCount', { count: getStatusCount(status.id) })}</div>
+            <div className="prep-modal-body">
+              <div className="move-options">
+                {STATUSES.map(status => {
+                  const isCurrent = status.id === currentColumn
+                  const isSelected = status.id === selectedStatus
+                  return (
+                    <div
+                      key={status.id}
+                      className={`move-option ${isSelected ? 'selected' : ''} ${isCurrent ? 'current' : ''}`}
+                      onClick={() => { if (!isCurrent || status.id === 'IN_PROGRESS') setSelectedStatus(status.id) }}
+                    >
+                      <div className="move-option-radio"></div>
+                      <div className="move-option-color" style={{ background: status.color }}></div>
+                      <div className="move-option-text">
+                        <div className="move-option-name">{t(status.labelKey)}</div>
+                        <div className="move-option-count">{t('moveModal.appCount', { count: getStatusCount(status.id) })}</div>
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
-            <div className="move-modal-actions">
-              <button className="move-modal-btn cancel" onClick={() => setMoveModalOpen(false)}>{t('moveModal.cancel')}</button>
+            <div className="prep-modal-actions">
+              <button className="prep-modal-btn cancel" onClick={() => setMoveModalOpen(false)}>{t('moveModal.cancel')}</button>
               <button
-                className="move-modal-btn confirm"
+                className="prep-modal-btn save"
                 onClick={handleMoveConfirm}
-                disabled={!selectedStatus || selectedStatus === currentColumn}
+                disabled={!selectedStatus || (selectedStatus === currentColumn && selectedStatus !== 'IN_PROGRESS')}
               >
                 {t('moveModal.move')}
               </button>
@@ -268,16 +252,30 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
         onSelect={handleEndSelect}
       />
 
-      <div className="details-grid">
-        <div className="details-info">
-          <h3>{t('details.infoTitle')}</h3>
+      <div className="details-sections">
+        <CollapsibleSection
+          title={t('details.sectionCheat')}
+          icon="📋"
+          accent={ACCENT_CHEAT}
+        >
+          <div className="prep-subblock">
+            <div className="prep-subblock-head">
+              <span>🏢 {t('cheatSheet.companySection')}</span>
+              <button className="prep-edit-link" onClick={() => setEditNote(true)}>{t('cheatSheet.edit')}</button>
+            </div>
+            <CompanyPrepReadonly application={application} salary={salary} />
+          </div>
+          <div className="prep-subblock">
+            <div className="prep-subblock-head">
+              <span>💬 {t('cheatSheet.globalSection')}</span>
+              <button className="prep-edit-link" onClick={() => setEditGlobal(true)}>{t('cheatSheet.edit')}</button>
+            </div>
+            <GlobalAnswersReadonly />
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection title={t('details.infoTitle')} icon="ℹ️" accent={ACCENT_INFO}>
           <div className="info-list">
-            {salary && (
-              <div className="info-item">
-                <span className="label">{t('details.salary')}</span>
-                <span className="value salary">{salary}</span>
-              </div>
-            )}
             {application.source && (
               <div className="info-item">
                 <span className="label">{t('details.source')}</span>
@@ -329,18 +327,17 @@ export function ApplicationDetails({ application, onBack, onDelete, onStageChang
               </div>
             )}
           </div>
+        </CollapsibleSection>
 
-          {application.jobDescription && (
-            <div className="job-description">
-              <h4>{t('details.jobDescription')}</h4>
-              <pre className="job-description-content">{application.jobDescription}</pre>
-            </div>
-          )}
-        </div>
+        {application.jobDescription && (
+          <CollapsibleSection title={t('details.jobDescription')} icon="📄" accent={ACCENT_JOB}>
+            <pre className="job-description-content">{application.jobDescription}</pre>
+          </CollapsibleSection>
+        )}
 
-        <div className="details-notes">
+        <CollapsibleSection title={t('details.sectionNotes')} icon="📝" accent={ACCENT_NOTES}>
           <NotesList applicationId={application.id} />
-        </div>
+        </CollapsibleSection>
       </div>
     </div>
   )

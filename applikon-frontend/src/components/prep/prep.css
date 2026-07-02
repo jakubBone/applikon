@@ -1,0 +1,516 @@
+/* Shared "preparation" visual language — used by the cheat sheet (modal + details
+   accordion) and the Pytania page, so global answers and per-application notes
+   look consistent everywhere. */
+
+.prep-block {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+}
+
+.prep-block + .prep-block {
+  margin-top: 1rem;
+}
+
+.prep-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.prep-block-title {
+  margin: 0 0 0.75rem 0;
+  color: #333;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.prep-block-head .prep-block-title {
+  margin-bottom: 0;
+}
+
+/* A labelled field (salary readout, company note textarea, …) */
+.prep-field + .prep-field {
+  margin-top: 0.9rem;
+}
+
+.prep-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.prep-field-label {
+  display: block;
+  color: #666;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.prep-field-head .prep-field-label {
+  margin-bottom: 0;
+}
+
+.prep-field-status {
+  color: #667eea;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.prep-textarea {
+  width: 100%;
+  min-height: 84px;
+  resize: vertical;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.7rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.prep-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.prep-counter {
+  text-align: right;
+  color: #999;
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.prep-edit-link {
+  background: transparent;
+  border: none;
+  color: #667eea;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.prep-edit-link:hover {
+  text-decoration: underline;
+}
+
+.prep-fill-btn {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Cheat-sheet content bits */
+.cheat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cheat-salary {
+  color: #333;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.cheat-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.cheat-answer {
+  border-left: 3px solid #eee;
+  padding-left: 0.75rem;
+}
+
+.cheat-answer-q {
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.cheat-answer-a {
+  color: #555;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+}
+
+.cheat-empty {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.cheat-empty p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+}
+
+/* Pytania page bits */
+.prep-hint {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.prep-select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #333;
+  background: #fff;
+  margin-bottom: 0.9rem;
+}
+
+.prep-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.prep-empty-inline {
+  text-align: center;
+  padding: 1.25rem 0.5rem;
+}
+
+.prep-empty-inline p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+}
+
+/* Collapsible section (details accordion) */
+.details-sections {
+  margin-top: 1rem;
+}
+
+.collapsible {
+  border: 1px solid #e5e5e5;
+  border-left: 4px solid #e5e5e5;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.collapsible + .collapsible {
+  margin-top: 0.75rem;
+}
+
+.collapsible-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.collapsible-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+.collapsible-toggle:hover {
+  background: #fafafa;
+}
+
+.collapsible-chevron {
+  color: #999;
+  font-size: 0.8rem;
+  width: 1rem;
+}
+
+.collapsible-icon {
+  font-size: 1rem;
+}
+
+.collapsible-title {
+  flex: 1;
+}
+
+.collapsible-action {
+  padding-right: 1.1rem;
+}
+
+.collapsible-body {
+  padding: 0 1.1rem 1.1rem;
+}
+
+/* --- Ściąga page --- */
+.cheat-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding-top: 0.75rem;
+}
+
+.cheat-picker {
+  display: block;
+  margin-bottom: 1.25rem;
+}
+
+.cheat-picker .prep-field-label {
+  padding-left: 0.2rem;
+}
+
+@media (max-width: 640px) {
+  .cheat-page {
+    padding: 0.75rem 0.6rem 0;
+  }
+}
+
+/* --- Read-only question / answer rows --- */
+.prep-qa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.prep-qa {
+  background: #f7f8fb;
+  border: 1px solid #ebedf2;
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+}
+
+.prep-qa-q {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: #1f2430;
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.prep-qa-a {
+  color: #3a4150;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+/* Sub-blocks inside a single accordion (details "Ściąga" section) */
+.prep-subblock + .prep-subblock {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.prep-subblock-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #2a2f3a;
+}
+
+/* --- Edit modals --- */
+.prep-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.prep-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.prep-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid #eee;
+}
+
+.prep-modal-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #333;
+}
+
+.prep-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #999;
+  cursor: pointer;
+}
+
+.prep-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.prep-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #eee;
+}
+
+.prep-modal-btn {
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.prep-modal-btn.cancel {
+  background: #fff;
+  border-color: #ddd;
+  color: #555;
+}
+
+.prep-modal-btn.save {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.prep-modal-btn.save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.prep-label-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 0.92rem;
+  font-family: inherit;
+  font-weight: 700;
+  color: #1f2430;
+}
+
+.prep-label-input::placeholder {
+  color: #9aa0ab;
+  font-weight: 600;
+}
+
+.prep-label-input:focus {
+  outline: none;
+}
+
+.prep-remove-btn {
+  background: transparent;
+  border: none;
+  color: #c0392b;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.prep-add-btn {
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Visible "change status" control next to the status badge */
+.status-edit-btn {
+  background: #fff;
+  border: 1px solid #d5d8e0;
+  border-radius: 8px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a4f5c;
+  cursor: pointer;
+}
+
+.status-edit-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+/* Info rows (details "Informacje" accordion) as rounded cards, like the Q/A rows */
+.details-sections .info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.details-sections .info-item {
+  background: #f7f8fb;
+  border: 1px solid #ebedf2;
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+}
+
+/* Modal question titles: black + bold, matching the read view */
+.prep-modal .prep-field-label {
+  color: #1f2430;
+  font-weight: 700;
+}
+
+/* Mobile: dock modals to the bottom as a slide-up sheet (like the Kanban board) */
+@media (max-width: 640px) {
+  .prep-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .prep-modal {
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 85vh;
+  }
+}

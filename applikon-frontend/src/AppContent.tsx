@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from './auth/AuthProvider'
 import KanbanBoard from './components/kanban/KanbanBoard'
 import CVManager from './components/cv/CVManager'
-import { MyAnswers } from './components/answers/MyAnswers'
+import { CheatSheet } from './components/cheatsheet/CheatSheet'
 import ApplicationTable from './components/applications/ApplicationTable'
 import { BadgeWidget } from './components/badges/BadgeWidget'
 import TourGuide from './components/tour/TourGuide'
@@ -278,7 +278,7 @@ export default function AppContent() {
             onCVAssigned={() => queryClient.invalidateQueries({ queryKey: applicationKeys.all })}
           />
         ) : view === 'answers' ? (
-          <MyAnswers />
+          <CheatSheet applications={applications} />
         ) : (
           <ApplicationTable
             applications={applications}

@@ -3,7 +3,7 @@
     "kanban": "Kanban",
     "list": "List",
     "cv": "CV",
-    "answers": "My answers"
+    "answers": "Cheat sheet"
   },
   "answers": {
     "title": "My answers",
@@ -11,7 +11,7 @@
     "emptyTitle": "Prepare your answers",
     "emptyDescription": "Keep your answers to the questions that come up in almost every interview in one place.",
     "fillIn": "Fill in your answers",
-    "addCustom": "Add your own question",
+    "addCustom": "Add question",
     "removeCustom": "Remove question",
     "customLabelPlaceholder": "Your question",
     "answerPlaceholder": "Type your answer...",
@@ -27,11 +27,20 @@
   "cheatSheet": {
     "button": "Cheat sheet",
     "title": "Cheat sheet",
-    "salaryLabel": "Proposed salary",
-    "companyLabel": "What do you know about this company?",
+    "subtitle": "Pick a company to see your prep for its interview.",
+    "pickCompany": "Pick a company",
+    "selectCompanyHint": "Pick a company from the list above to see its cheat sheet.",
+    "noApplications": "Add an application first to prepare a cheat sheet.",
+    "companySection": "About the company",
+    "globalSection": "General",
+    "edit": "Add/Edit",
+    "salaryQuestion": "Your salary",
+    "companyLabel": "What do you know about us?",
     "companyPlaceholder": "Gather the key facts about the company before the call...",
-    "answersTitle": "My answers",
-    "editAnswers": "Edit"
+    "answersEmpty": "You don't have any general answers yet.",
+    "editCompanyTitle": "Company questions",
+    "editGlobalTitle": "General questions",
+    "empty": "-"
   },
   "stale": {
     "banner": "Applications with no response for over 60 days: {{n}}. Consider archiving.",
@@ -164,7 +173,9 @@
     "download": "Download",
     "open": "Open",
     "local": "(local)",
-    "jobDescription": "Job description"
+    "jobDescription": "Job description",
+    "sectionCheat": "Cheat sheet",
+    "sectionNotes": "Notes"
   },
   "notes": {
     "title": "Notes",

@@ -3,7 +3,7 @@
     "kanban": "Kanban",
     "list": "Lista",
     "cv": "CV",
-    "answers": "Moje odpowiedzi"
+    "answers": "Ściąga"
   },
   "answers": {
     "title": "Moje odpowiedzi",
@@ -11,7 +11,7 @@
     "emptyTitle": "Przygotuj swoje odpowiedzi",
     "emptyDescription": "Zbierz w jednym miejscu odpowiedzi na pytania, które padają na prawie każdej rozmowie rekrutacyjnej.",
     "fillIn": "Uzupełnij odpowiedzi",
-    "addCustom": "Dodaj własne pytanie",
+    "addCustom": "Dodaj pytanie",
     "removeCustom": "Usuń pytanie",
     "customLabelPlaceholder": "Treść Twojego pytania",
     "answerPlaceholder": "Wpisz swoją odpowiedź...",
@@ -27,11 +27,20 @@
   "cheatSheet": {
     "button": "Ściąga",
     "title": "Ściąga",
-    "salaryLabel": "Zaproponowana stawka",
-    "companyLabel": "Co wiesz o tej firmie?",
+    "subtitle": "Wybierz firmę, a zobaczysz przygotowanie na jej rozmowę.",
+    "pickCompany": "Wybierz firmę",
+    "selectCompanyHint": "Wybierz firmę z listy powyżej, aby zobaczyć ściągę.",
+    "noApplications": "Najpierw dodaj aplikację, aby przygotować ściągę.",
+    "companySection": "O firmie",
+    "globalSection": "Ogólne",
+    "edit": "Dodaj/Edytuj",
+    "salaryQuestion": "Twoja stawka",
+    "companyLabel": "Co wiesz o nas?",
     "companyPlaceholder": "Zbierz najważniejsze fakty o firmie przed rozmową...",
-    "answersTitle": "Moje odpowiedzi",
-    "editAnswers": "Edytuj"
+    "answersEmpty": "Nie masz jeszcze ogólnych odpowiedzi.",
+    "editCompanyTitle": "Pytania o firmie",
+    "editGlobalTitle": "Ogólne pytania",
+    "empty": "-"
   },
   "stale": {
     "banner": "Aplikacje bez odpowiedzi ponad 60 dni: {{n}}. Rozważ archiwizację.",
@@ -166,7 +175,9 @@
     "download": "Pobierz",
     "open": "Otwórz",
     "local": "(lokalnie)",
-    "jobDescription": "Treść ogłoszenia"
+    "jobDescription": "Treść ogłoszenia",
+    "sectionCheat": "Ściąga",
+    "sectionNotes": "Notatki"
   },
   "notes": {
     "title": "Notatki",
