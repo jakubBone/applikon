@@ -196,6 +196,91 @@ Covers US-3.1 / 3.2. Front-only.
 
 ---
 
+> **Phases 5–6 — pre-release UX revision (added 2026-07-02).** Phases 1–4 built the
+> v2 features; dogfooding *before the first v2 release* showed the UI had drifted into
+> clutter (scattered similar surfaces, confusing global-vs-per-application, the cheat
+> sheet hard to reach and hard to read). These phases consolidate the preparation
+> surfaces. They are part of **the same unreleased v2** (not a new version); phases 1–4
+> above stay as the truthful original record.
+
+## Phase 5 — UX consolidation ("Ściąga" hub, front-only)
+
+No DB change. Reworks how the v2 features are surfaced.
+
+**Build**
+- **`Ściąga` replaces the `Pytania` tab** as the single preparation surface:
+  - a **company picker** at the top (`Firma - Stanowisko`);
+  - two **collapsible bars** (chevron), visually distinguished (emoji + colour):
+    **🏢 O firmie** (read-only: proposed salary + "co wiesz o firmie") and
+    **💬 Ogólne** (read-only global answers).
+  - Everything **read-only**; **Edytuj** opens a **modal with Save** (like
+    `ApplicationForm`) — separate modal for *Ogólne* and for *O firmie*; salary
+    **Edytuj** opens the application edit form. Replaces the old inline autosave.
+  - This *is* the fast path for the recruiter-call scenario (tab → pick firma →
+    questions). The per-card 📋 icon (found unintuitive) is **removed**.
+- **Details view** becomes an **accordion** with icon + colour headers:
+  **📋 Ściąga** (default open) · **ℹ️ Informacje** · **📄 Opis oferty** · **📝 Notatki**.
+  - The `▼ Ściąga` section is the same read-only content (no picker — firma is known),
+    with the same **Edytuj → modal** pattern.
+  - **Proposed salary removed from Informacje**; it lives only in Ściąga, shown as an
+    editable question-style item ("Zaproponowałeś/aś stawkę" → `7000 PLN (net, …)`).
+  - **Status badge is the change-status control** (click the badge, e.g. "Wysłane");
+    the separate button / `⋮` item is dropped.
+  - Status + stage collapse into **one label**: `W procesie (Rozmowa finalna)`.
+- **Consistency pass:** one shared visual language (`prep.css`) across Ściąga /
+  details; consistent typography & spacing; short dashes `-` everywhere; renames
+  **"Globalne" → "Ogólne"** (keep **"O firmie"**); `nav.answers` → "Ściąga".
+- i18n PL/EN for all new/changed strings.
+
+**Tests (vitest)** — picker selects a firma; Ściąga renders read-only + Edytuj opens
+the modal; details accordion (Ściąga open, salary absent from Informacje); status badge
+opens status change.
+
+**DoD** — one "Ściąga" hub (pick firma → read questions), edit only via modals,
+decluttered accordion details, consistent style. `npm run test:run` + `lint` + `build` green.
+
+**Checklist**
+- [ ] `Ściąga` tab: firma picker + collapsible 🏢 O firmie / 💬 Ogólne (read-only)
+- [ ] Edit via modals (Ogólne, O firmie); salary edit → application form
+- [ ] Details accordion (icon+colour headers); salary out of Informacje → Ściąga
+- [ ] Status badge = change status; `W procesie (Rozmowa finalna)` single label
+- [ ] Shared style + typography, short dashes `-`, renames (Ogólne / keep O firmie)
+- [ ] i18n PL/EN · tests + lint + build green
+
+---
+
+## Phase 6 — Per-application questions (backend `V19`)
+
+Lets **O firmie** carry its own custom questions (like Ogólne), not just one note.
+
+**Build**
+- `screening_answers` gains a nullable **`application_id`** (FK → `applications`,
+  `ON DELETE CASCADE`): `NULL` = global (Ogólne), set = per-application (O firmie).
+- `db/migration/V19__screening_answers_application_scope.sql` — add column + index;
+  **migrate** existing `Application.companyResearch` into a company-scoped answer row
+  (`questionKey = 'company-knowledge'`); leave the `company_research` column unused (or
+  drop in the same migration — decide at build time).
+- Service/API extended to fetch/save answers **by scope** (global vs a given
+  application), JWT-scoped; replace-all upsert per scope (as today).
+- Frontend: **O firmie** becomes the same "fixed + add custom" editor as Ogólne (in its
+  modal), pointed at the selected application.
+
+**Tests** — backend: per-application save/fetch, isolation across applications and
+users, migration carries `companyResearch` over; frontend: add/remove custom company
+question in the modal.
+
+**DoD** — O firmie supports custom questions per application, consistent with Ogólne;
+`./mvnw test` + `npm run test:run` green. Flyway migration written **once, at build
+time** (immutable after apply).
+
+**Checklist**
+- [ ] `V19` migration (nullable `application_id` + data migration from `companyResearch`)
+- [ ] Entity/repo/service/API scoped to global vs application
+- [ ] Frontend O firmie modal = fixed + add-custom (mirrors Ogólne)
+- [ ] Backend + frontend tests green
+
+---
+
 ## Cross-cutting Definition of Done (whole version)
 
 - [ ] All success criteria in `01-brief.md` §5 met.
@@ -206,12 +291,3 @@ Covers US-3.1 / 3.2. Front-only.
 - [ ] One optional Cypress E2E happy path: fill "My answers" → open an application's
   cheat sheet → see them composed with the proposed salary.
 
----
-
-## Suggested commit sequence (Conventional Commits)
-
-1. `feat(backend): add screening answers resource (entity, repo, service, API, V17)`
-2. `feat(frontend): add "My answers" screening template page`
-3. `feat(backend): add per-application companyResearch field (V18, PATCH endpoint)`
-4. `feat(frontend): add per-application cheat sheet modal`
-5. `feat(frontend): add board cleanup for stale applications`

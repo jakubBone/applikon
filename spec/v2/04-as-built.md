@@ -20,6 +20,8 @@
 | 2 | Frontend: "My answers" page | ✅ Built (2026-06-30) |
 | 3 | Cheat sheet modal + per-application company note | ✅ Built (2026-06-30) |
 | 4 | Frontend: Board cleanup | ✅ Built (2026-06-30) |
+| 5 | UX consolidation ("Ściąga" hub, front-only) | ⏳ In progress |
+| 6 | Per-application questions (backend `V19`) | ⏳ Pending |
 
 ---
 
@@ -232,5 +234,17 @@ offers a per-card one-click archive as `REJECTED` / `NO_RESPONSE` (v1 enums).
 
 ## 6. v2 status
 
-All four phases built. Backend **130/130**, frontend **125/125**, lint + build green.
-Remaining optional item from the cross-cutting DoD: the single Cypress E2E happy path.
+Phases 1–4 built (backend **130/130**, frontend **125/125**, lint + build green).
+**v2 is not yet released** — no CHANGELOG entry, README still omits v2 features, app
+version is still `1.1.0`, no deploy. Phases **5–6** (pre-release UX revision, see
+`03-plan.md`) are in progress before that first release.
+
+---
+
+## 7. Phases 5–6 — UX revision ⏳
+
+⏳ **In progress.** Planned in `03-plan.md`. An earlier intermediate build (shared
+cheat-sheet component + a two-block "Pytania" page + card 📋 icons) was superseded by
+the agreed final design — the **"Ściąga" hub** (tab with a firma picker + collapsible
+🏢 O firmie / 💬 Ogólne, read-only + edit-in-modal), decluttered accordion details, and
+per-application questions (`V19`). To be recorded here as each phase lands.
