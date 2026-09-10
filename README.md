@@ -60,8 +60,9 @@ PostgreSQL 16  ·  schema owned by Flyway; Hibernate runs in `validate` mode onl
 - The access token is validated before any application code runs
 - `MdcUserFilter` puts the user id into the logging context - every log line attributable, no email ever logged
 - Entities never leave the service layer; responses are DTO records
+- User isolation: query`findByIdAndUserId`, never `findById` (database never returns someone else's row - a request for another user's data just gets a 404)
 
-Full reference: [`spec/architecture.md`](spec/architecture.md)
+- Full reference: [`spec/architecture.md`](spec/architecture.md)
 
 ## ⚖️ Engineering decisions & trade-offs
 
