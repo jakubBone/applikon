@@ -5,6 +5,7 @@ import com.applikon.entity.CVType;
 import com.applikon.entity.User;
 import com.applikon.repository.ApplicationRepository;
 import com.applikon.repository.CVRepository;
+import com.applikon.repository.NoteRepository;
 import com.applikon.repository.UserRepository;
 import com.applikon.security.AuthenticatedUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,12 +41,14 @@ class CVControllerTest {
     @Autowired private ObjectMapper objectMapper;
     @Autowired private CVRepository cvRepository;
     @Autowired private ApplicationRepository applicationRepository;
+    @Autowired private NoteRepository noteRepository;
     @Autowired private UserRepository userRepository;
 
     private User testUser;
 
     @BeforeEach
     void setUp() {
+        noteRepository.deleteAll();
         applicationRepository.deleteAll();
         cvRepository.deleteAll();
         userRepository.deleteAll();
