@@ -46,20 +46,21 @@ and out of scope here.
   add a second factor or lock the account.
 - A settings toggle to turn notifications off. Everyone gets both events for
   now.
-- Retrying a `POST` that returns a non-2xx or times out beyond the outbox
-  poller's own next scheduled pass — no exponential backoff, no dead-letter
-  handling. If the gateway is down for a while, rows simply stay `PENDING`
-  and get retried on the next tick.
+- Retrying a failed `POST` beyond the outbox poller's own next scheduled
+  pass — no exponential backoff, no retry counter, no dead-letter queue. If the
+  gateway is down for a while, rows simply stay `PENDING` and get retried on
+  the next tick. The one exception is an event the gateway rejects as invalid
+  (`400`, `422`): it is marked `FAILED` and never retried.
 
 ## 4. Done when
 
-- A new user's first Google login writes a `WELCOME` outbox row, in the same
-  transaction as the user insert.
-- A login from an unrecognized device fingerprint writes a `NEW_DEVICE_LOGIN`
-  outbox row and records the new fingerprint.
-- A recognized fingerprint writes nothing.
-- The poller sends `PENDING` rows to the configured gateway URL and marks
-  them `SENT` on success; a failed or unreachable gateway leaves the row
-  `PENDING` without affecting the login or registration response.
-- The gateway being completely unavailable never causes a login or
-  registration request to fail or slow down.
+- A new user's first Google login writes one `WELCOME` event, in the same
+  transaction as the account.
+- A login from a device the account has not used before writes one
+  `NEW_DEVICE_LOGIN` event. The first login of an account never does, and
+  neither does the first login of an account created before this release.
+- A known device writes nothing, and a silent token refresh is not a login.
+- Both events carry the device details (browser, IP, time).
+- The poller sends pending events to the gateway with a shared secret and
+  marks them sent. A gateway that is down, slow or rejecting never makes a
+  login or registration fail or slow down.

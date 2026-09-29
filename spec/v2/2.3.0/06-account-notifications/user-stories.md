@@ -34,10 +34,14 @@ not used before, so that I notice if someone else is using my account.
 - The event carries the device details: User-Agent, IP address and the time
   of the login.
 - A login with a known fingerprint writes nothing.
+- A login of an account that has no known device yet (an account created
+  before this release) records the device silently and writes no event.
 
 **Edge cases**
 - The same device logs in twice: only the first login writes an event, the
   second one is recognized.
+- Two different new devices log in on the same day: each one gets its own
+  event.
 - Two logins from the same new device arrive at almost the same time: one
   event and one fingerprint row, not two.
 - A silent token refresh (`/api/auth/refresh`) is not a login: it writes no
@@ -59,7 +63,13 @@ account.
   raises no error in the login or registration request.
 - When the gateway is back, the pending events are sent on the poller's next
   run, without manual action.
+- A gateway that rejects an event as invalid marks it `FAILED`. It is not
+  retried and does not hold up the other events.
+- Every request to the gateway carries a shared secret, so only Applikon can
+  submit events.
 
 **Edge cases**
+- The shared secret is wrong or missing: the gateway refuses the request, the
+  events stay `PENDING`, and they go out once the secret is fixed.
 - The gateway is down for a long time: events stay `PENDING` and nothing is
   lost. Nobody is told that a mail is late. This is accepted for this release.
