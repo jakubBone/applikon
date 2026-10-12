@@ -1,4 +1,4 @@
-package com.applikon.config;
+package com.applikon.ai;
 
 import com.google.genai.Client;
 import com.google.genai.types.HttpOptions;
@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Profile;
 // pin a task-executor thread on a hung call), and tolerating a blank key at startup: a missing
 // or revoked key then fails the single generation call (terminal FAILED brief), never boot.
 // Timeout and retry live in client configuration only, never annotation-driven AOP (ADR-004).
-// Gated on the same switch as GeminiBriefChatModel (ADR-005): while Groq is the active provider
+// Gated on the same switch as GeminiBriefGenerator (ADR-005): while Groq is the active provider
 // no Gemini client is built, the key is not read, and the startup key log stays silent.
 @Configuration
 @Profile("!test")

@@ -12,7 +12,7 @@ import com.applikon.repository.NoteRepository;
 import com.applikon.repository.ScreeningAnswerRepository;
 import com.applikon.repository.UserRepository;
 import com.applikon.security.AuthenticatedUser;
-import com.applikon.service.ai.FakeBriefChatModel;
+import com.applikon.service.brief.FakeBriefGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +63,7 @@ class BriefControllerTest {
     @Autowired private ApplicationRepository applicationRepository;
     @Autowired private CVRepository cvRepository;
     @Autowired private UserRepository userRepository;
-    @Autowired private FakeBriefChatModel fakeBriefChatModel;
+    @Autowired private FakeBriefGenerator fakeBriefGenerator;
 
     private User testUser;
 
@@ -77,8 +77,8 @@ class BriefControllerTest {
         cvRepository.deleteAll();
         userRepository.deleteAll();
 
-        fakeBriefChatModel.setFailNext(false);   // reset the shared fake between tests
-        fakeBriefChatModel.setInsufficientNext(false);
+        fakeBriefGenerator.setFailNext(false);   // reset the shared fake between tests
+        fakeBriefGenerator.setInsufficientNext(false);
 
         testUser = createUser("test@example.com", "google-brief-a");
         authenticateAs(testUser);
@@ -112,7 +112,7 @@ class BriefControllerTest {
     void trigger_insufficientInfo_marksNullEveryLocale() throws Exception {
         Long appId = saveApplication(testUser).getId();
 
-        fakeBriefChatModel.setInsufficientNext(true);
+        fakeBriefGenerator.setInsufficientNext(true);
         mockMvc.perform(post(url(appId))).andExpect(status().isAccepted());
 
         BriefFieldResponse pitch = field(awaitStatus(appId, "READY"), "pitch");
@@ -123,7 +123,7 @@ class BriefControllerTest {
     @Test
     @DisplayName("A second application to the same company reuses the brief (model called once)")
     void trigger_reusesBriefAcrossApplications() throws Exception {
-        int callsBefore = fakeBriefChatModel.callCount();
+        int callsBefore = fakeBriefGenerator.callCount();
 
         Long app1 = saveApplication(testUser).getId();
         mockMvc.perform(post(url(app1))).andExpect(status().isAccepted());
@@ -134,7 +134,7 @@ class BriefControllerTest {
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.status").value("READY"));   // cache hit, no new generation
 
-        assertEquals(1, fakeBriefChatModel.callCount() - callsBefore);
+        assertEquals(1, fakeBriefGenerator.callCount() - callsBefore);
     }
 
     @Test
@@ -142,11 +142,11 @@ class BriefControllerTest {
     void trigger_failsThenRetries() throws Exception {
         Long appId = saveApplication(testUser).getId();
 
-        fakeBriefChatModel.setFailNext(true);
+        fakeBriefGenerator.setFailNext(true);
         mockMvc.perform(post(url(appId))).andExpect(status().isAccepted());
         awaitStatus(appId, "FAILED");
 
-        fakeBriefChatModel.setFailNext(false);
+        fakeBriefGenerator.setFailNext(false);
         mockMvc.perform(post(url(appId))).andExpect(status().isAccepted());   // retry allowed from FAILED
         assertEquals("READY", awaitStatus(appId, "READY").status());
     }
@@ -204,7 +204,7 @@ class BriefControllerTest {
         Long appId = saveApplication(testUser).getId();
         mockMvc.perform(post(url(appId))).andExpect(status().isAccepted());
         awaitStatus(appId, "READY");
-        int callsBefore = fakeBriefChatModel.callCount();
+        int callsBefore = fakeBriefGenerator.callCount();
 
         mockMvc.perform(delete(url(appId))).andExpect(status().isNoContent());
 
@@ -212,7 +212,7 @@ class BriefControllerTest {
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.status").value("PENDING"));
         awaitStatus(appId, "READY");
-        assertEquals(1, fakeBriefChatModel.callCount() - callsBefore);   // generated again, not reused
+        assertEquals(1, fakeBriefGenerator.callCount() - callsBefore);   // generated again, not reused
     }
 
     @Test

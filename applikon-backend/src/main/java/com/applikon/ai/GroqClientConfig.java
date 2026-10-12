@@ -1,4 +1,4 @@
-package com.applikon.config;
+package com.applikon.ai;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

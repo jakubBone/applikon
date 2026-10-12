@@ -11,8 +11,6 @@ import com.applikon.repository.ApplicationRepository;
 import com.applikon.repository.CompanyBriefFieldRepository;
 import com.applikon.repository.CompanyBriefRepository;
 import com.applikon.repository.UserRepository;
-import com.applikon.service.ai.BriefLocales;
-import com.applikon.service.ai.GeneratedBrief;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

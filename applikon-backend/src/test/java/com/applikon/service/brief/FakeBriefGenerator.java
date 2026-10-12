@@ -1,4 +1,4 @@
-package com.applikon.service.ai;
+package com.applikon.service.brief;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @Profile("test")
-public class FakeBriefChatModel implements BriefChatModel {
+public class FakeBriefGenerator implements BriefGenerator {
 
     private final AtomicInteger calls = new AtomicInteger();
     private volatile boolean failNext = false;

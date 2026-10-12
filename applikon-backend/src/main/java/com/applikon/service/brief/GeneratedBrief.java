@@ -1,4 +1,4 @@
-package com.applikon.service.ai;
+package com.applikon.service.brief;
 
 import java.util.List;
 

@@ -1,5 +1,8 @@
-package com.applikon.service.ai;
+package com.applikon.ai;
 
+import com.applikon.service.brief.BriefGenerator;
+import com.applikon.service.brief.BriefLocales;
+import com.applikon.service.brief.GeneratedBrief;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,14 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// Groq adapter behind the BriefChatModel port, the active brief provider (ADR-005). Groq's
+// Groq adapter behind the BriefGenerator port, the active brief provider (ADR-005). Groq's
 // compound system runs web search server side, replacing Gemini grounding after Google closed
 // it to free-tier users (the fallback ADR-001 designated). Deliberately self-contained: prompt
-// and parsing mirror GeminiBriefChatModel; consolidate only if a third provider ever appears.
+// and parsing mirror GeminiBriefGenerator; consolidate only if a third provider ever appears.
 @Component
 @Profile("!test")
 @ConditionalOnProperty(name = "brief.provider", havingValue = "groq")
-public class GroqBriefChatModel implements BriefChatModel {
+public class GroqBriefGenerator implements BriefGenerator {
 
     // What each BriefLocales.FIELD_KEYS entry means, spelled out for the model
     private static final Map<String, String> FIELD_HINTS = Map.of(
@@ -33,7 +36,7 @@ public class GroqBriefChatModel implements BriefChatModel {
     private final ChatModel chatModel;
     private final ObjectMapper objectMapper;
 
-    public GroqBriefChatModel(ChatModel chatModel, ObjectMapper objectMapper) {
+    public GroqBriefGenerator(ChatModel chatModel, ObjectMapper objectMapper) {
         this.chatModel = chatModel;
         this.objectMapper = objectMapper;
     }

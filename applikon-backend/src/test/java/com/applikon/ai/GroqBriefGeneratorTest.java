@@ -1,5 +1,7 @@
-package com.applikon.service.ai;
+package com.applikon.ai;
 
+import com.applikon.service.brief.BriefLocales;
+import com.applikon.service.brief.GeneratedBrief;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // Pure unit tests of the adapter's prompt and parse logic; the ChatModel is stubbed, no network.
-class GeminiBriefChatModelTest {
+// Mirrors GeminiBriefGeneratorTest: the two adapters are deliberately self-contained, so the
+// parse rules are asserted per adapter. This is the provider that actually runs (ADR-005).
+class GroqBriefGeneratorTest {
 
     private static final String FULL_JSON = """
             {"pitch": {"pl": "Fintech (pl)", "en": "Fintech (en)"}}
@@ -63,24 +67,36 @@ class GeminiBriefChatModelTest {
     }
 
     @Test
-    @DisplayName("prompt carries the company name and no URL")
-    void promptCarriesNameOnly() {
+    @DisplayName("a response carrying no generation throws instead of dereferencing null")
+    void emptyResponseThrows() {
+        ChatModel stub = prompt -> new ChatResponse(List.of());
+
+        assertThrows(IllegalStateException.class,
+                () -> new GroqBriefGenerator(stub, new ObjectMapper()).generate("Acme"));
+    }
+
+    @Test
+    @DisplayName("prompt carries the company name and the web-search instruction, and no URL")
+    void promptCarriesNameAndSearchInstructionOnly() {
         AtomicReference<Prompt> seen = new AtomicReference<>();
         ChatModel stub = prompt -> {
             seen.set(prompt);
             return response(FULL_JSON);
         };
 
-        new GeminiBriefChatModel(stub, new ObjectMapper()).generate("Acme");
+        new GroqBriefGenerator(stub, new ObjectMapper()).generate("Acme");
 
         String prompt = seen.get().getContents();
         assertTrue(prompt.contains("Acme"));
+        // compound decides server side whether to search; this instruction is what triggers it,
+        // so losing it would silently turn grounded briefs into plain model recall
+        assertTrue(prompt.contains("Search the web"));
         // ADR-006: the company name is the only thing that reaches the provider
         assertFalse(prompt.contains("http"));
     }
 
-    private GeminiBriefChatModel adapterReturning(String answer) {
-        return new GeminiBriefChatModel(prompt -> response(answer), new ObjectMapper());
+    private GroqBriefGenerator adapterReturning(String answer) {
+        return new GroqBriefGenerator(prompt -> response(answer), new ObjectMapper());
     }
 
     private static ChatResponse response(String answer) {

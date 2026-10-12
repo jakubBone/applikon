@@ -8,9 +8,12 @@
 ```
 com.applikon/
   ApplikonApplication.java        — main class, @SpringBootApplication, @EnableJpaAuditing, @EnableScheduling
-  config/
+  ai/                              — adapters to external AI providers plus their client beans: infrastructure, not services; implement the BriefGenerator port from service/brief
     GeminiClientConfig.java        — (v2 03-company-brief) own Gemini `Client` bean: 60 s request timeout + blank key tolerated at startup; built only when brief.provider=gemini
     GroqClientConfig.java          — (v2 03-company-brief) own `OpenAiApi` bean for the Groq endpoint: 10 s connect / 60 s read timeout, blank key tolerated (SimpleApiKey); built only when brief.provider=groq
+    GroqBriefGenerator.java        — active adapter, `groq/compound-mini` via the OpenAI-compatible API (ADR-v2-001)
+    GeminiBriefGenerator.java      — dormant adapter, Google Search grounding; kept as the documented return path
+  config/
     I18nConfig.java                — MessageSource (i18n/messages), AcceptHeaderLocaleResolver (default: en)
     OpenApiConfig.java             — @OpenAPIDefinition (title/description/version/contact) + @SecurityScheme (JWT Bearer) (11-swagger)
     SecurityConfig.java            — Spring Security, OAuth2, JWT encoder/decoder, CORS
@@ -75,18 +78,16 @@ com.applikon/
     JwtService.java                — generates access token (RS256, 15 min) and refresh token (UUID)
     OAuth2AuthenticationSuccessHandler.java — on OAuth2 success: issues JWT + refresh token, redirects to frontend
     TokenHasher.java               — HMAC-SHA256 util (server-side secret via `app.token.hmac-secret` / `APP_TOKEN_HMAC_SECRET`); used to hash refresh tokens before storing in DB (07-privacy-rodo, hardened to HMAC in 09-security-review)
-  service/
+  service/                         — flat for one-class features; a sub-package once a feature has about 3 or more collaborating classes
     AccountRetentionService.java   — @Scheduled(cron daily 3:00): deletes accounts inactive > 12 months via UserService.deleteAccount; threshold from app.retention.inactive-months (07-privacy-rodo)
     ApplicationService.java        — create, findAllByUserId, findById, updateStatus, updateStage, addStage, findDuplicates, delete, update
-    BriefService.java              — (v2 03-company-brief) trigger (cache-aside per company, retry only from FAILED), get, editFields, markReady, markFailed
-    BriefGenerationRequested.java  — record (briefId, companyName) — the event trigger publishes (ADR-v2-002)
-    BriefGenerationWorker.java     — @TransactionalEventListener(AFTER_COMMIT); hands the model call to `applicationTaskExecutor`, writes back through BriefService
-    ai/
-      BriefChatModel.java          — port: `GeneratedBrief generate(String companyName)` — the company name is all that leaves the system (ADR-v2-003)
+    brief/                         — company-brief feature: service, async worker, event and the BriefGenerator port that the adapters in ai/ implement
+      BriefService.java            — (v2 03-company-brief) trigger (cache-aside per company, retry only from FAILED), get, editFields, markReady, markFailed
+      BriefGenerationRequested.java — record (briefId, companyName) — the event trigger publishes (ADR-v2-002)
+      BriefGenerationWorker.java   — @TransactionalEventListener(AFTER_COMMIT); hands the model call to `applicationTaskExecutor`, writes back through BriefService
+      BriefGenerator.java          — port: `GeneratedBrief generate(String companyName)` — the company name is all that leaves the system (ADR-v2-003)
       BriefLocales.java            — FIELD_KEYS (pitch — collapsed from four fields in 2.2.0 05-company-pitch) + active LOCALES; one source of truth for prompt and persistence
       GeneratedBrief.java          — record (fields: List<Field{fieldKey, lang, text}>); null text = "not enough public info"
-      GroqBriefChatModel.java      — active adapter, `groq/compound-mini` via the OpenAI-compatible API (ADR-v2-001)
-      GeminiBriefChatModel.java    — dormant adapter, Google Search grounding; kept as the documented return path
     CVService.java                 — uploadCV, findAllByUserId, findById, downloadCV, deleteCV, createCV, updateCV, assignCVToApplication, removeCVFromApplication
     NoteService.java               — create, findByApplicationId, findById, update, delete, deleteByApplicationId, createSalaryChangeNote (⚠️ dead code — never called)
     ServiceNoticeService.java      — findActive(), create(ServiceNoticeRequest) (08-user-data)
@@ -186,7 +187,7 @@ POST /brief ──► BriefService.trigger  (@Transactional)
                                     ▼
                      BriefGenerationWorker ──► applicationTaskExecutor (off the request thread)
                                     │
-                                    ├─ BriefChatModel.generate(companyName)  ──► provider (web search server side)
+                                    ├─ BriefGenerator.generate(companyName)  ──► provider (web search server side)
                                     ├─ success → BriefService.markReady   (rows replaced in one transaction)
                                     └─ any exception → BriefService.markFailed  (terminal; never a partial brief)
 

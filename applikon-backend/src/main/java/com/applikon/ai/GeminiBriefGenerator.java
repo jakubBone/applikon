@@ -1,5 +1,8 @@
-package com.applikon.service.ai;
+package com.applikon.ai;
 
+import com.applikon.service.brief.BriefGenerator;
+import com.applikon.service.brief.BriefLocales;
+import com.applikon.service.brief.GeneratedBrief;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// Gemini adapter behind the BriefChatModel port (ADR-001): one Google-Search-grounded request
+// Gemini adapter behind the BriefGenerator port (ADR-001): one Google-Search-grounded request
 // asks for every field in every active locale. Only the company name and the job-ad link ever
 // enter the prompt. Anything malformed or incomplete in the reply throws, which the worker turns
 // into a terminal FAILED: a partial brief is never stored.
@@ -25,7 +28,7 @@ import java.util.stream.Collectors;
 @Component
 @Profile("!test")
 @ConditionalOnProperty(name = "brief.provider", havingValue = "gemini", matchIfMissing = true)
-public class GeminiBriefChatModel implements BriefChatModel {
+public class GeminiBriefGenerator implements BriefGenerator {
 
     // What each BriefLocales.FIELD_KEYS entry means, spelled out for the model
     private static final Map<String, String> FIELD_HINTS = Map.of(
@@ -35,7 +38,7 @@ public class GeminiBriefChatModel implements BriefChatModel {
     private final ChatModel chatModel;
     private final ObjectMapper objectMapper;
 
-    public GeminiBriefChatModel(ChatModel chatModel, ObjectMapper objectMapper) {
+    public GeminiBriefGenerator(ChatModel chatModel, ObjectMapper objectMapper) {
         this.chatModel = chatModel;
         this.objectMapper = objectMapper;
     }

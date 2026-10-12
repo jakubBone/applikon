@@ -1,6 +1,5 @@
 package com.applikon.service.brief;
 
-import com.applikon.service.ai.BriefChatModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,16 +17,16 @@ public class BriefGenerationWorker {
 
     private static final Logger log = LoggerFactory.getLogger(BriefGenerationWorker.class);
 
-    private final BriefChatModel briefChatModel;
+    private final BriefGenerator briefGenerator;
     private final BriefService briefService;
     private final TaskExecutor taskExecutor;
 
     // "applicationTaskExecutor" is Boot's general-purpose pool; the qualifier is needed because
     // @EnableScheduling's taskScheduler also implements TaskExecutor.
-    public BriefGenerationWorker(BriefChatModel briefChatModel,
+    public BriefGenerationWorker(BriefGenerator briefGenerator,
                                  BriefService briefService,
                                  @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor) {
-        this.briefChatModel = briefChatModel;
+        this.briefGenerator = briefGenerator;
         this.briefService = briefService;
         this.taskExecutor = taskExecutor;
     }
@@ -36,7 +35,7 @@ public class BriefGenerationWorker {
     public void on(BriefGenerationRequested event) {
         taskExecutor.execute(() -> {
             try {
-                briefService.markReady(event.briefId(), briefChatModel.generate(event.companyName()));
+                briefService.markReady(event.briefId(), briefGenerator.generate(event.companyName()));
             } catch (Exception e) {
                 log.warn("Brief generation failed for brief {}", event.briefId(), e);
                 briefService.markFailed(event.briefId());
