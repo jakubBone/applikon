@@ -112,9 +112,25 @@ database refuse a second row for the same event.
 | `WELCOME` | `WELCOME:<userId>` | the one welcome of that user |
 | `NEW_DEVICE_LOGIN` | `NEW_DEVICE_LOGIN:<userId>:9f3ab1…` | the alert for that user about that device |
 
+### 1.3 Entities and repositories
+
+The duplicate-insert test below needs something to insert through, so the
+mapping classes belong to this step, not to a later one.
+
+- `NotificationType` (`WELCOME`, `NEW_DEVICE_LOGIN`) and `OutboxStatus`
+  (`PENDING`, `SENT`, `FAILED`), both stored as strings.
+- `KnownDevice` and `NotificationOutbox`: one field per column of the
+  migration, same names and nullability, in the style of the existing
+  entities. `user_id` is a plain `UUID` field, not a `@ManyToOne`: the
+  services only ever work with the user's id.
+- `KnownDeviceRepository` and `NotificationOutboxRepository` start empty,
+  extending `JpaRepository`. Query methods are added in the step whose
+  service needs them.
+
 **Checklist**
 - [ ] Migration applies cleanly on a fresh DB and on the existing dev DB
       (tests run with Flyway off, so this one is checked by hand)
+- [ ] Both entities map every column of the migration
 - [ ] `idempotency_key` uniqueness verified with a duplicate-insert test
 
 ## Step 2 — Device fingerprinting and outbox writes
@@ -137,6 +153,9 @@ constraint rejects the second insert; the service catches that and returns
 key would drop a second alert from a different new device on the same day.
 
 **Build**
+- `KnownDeviceRepository`: `existsByUserId` (tells `FIRST_DEVICE` from
+  `NEW_DEVICE`) and `existsByUserIdAndFingerprintHash` (tells `KNOWN` from the
+  rest).
 - `DeviceFingerprintService`: SHA-256 over `userAgent + "|" + ip`. The
   `User-Agent` is cut to 255 characters before hashing and before it goes into
   a payload.
