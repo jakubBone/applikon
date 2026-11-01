@@ -32,7 +32,7 @@ public class NotificationOutbox {
     @Column(name = "payload", columnDefinition = "TEXT")
     private String payload;
 
-    @Column(name = "idempotency_key", nullable = false, length = 255)
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 255)
     private String idempotencyKey;
 
     @Enumerated(EnumType.STRING)
