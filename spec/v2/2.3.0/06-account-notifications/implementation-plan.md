@@ -128,10 +128,10 @@ mapping classes belong to this step, not to a later one.
   service needs them.
 
 **Checklist**
-- [ ] Migration applies cleanly on a fresh DB and on the existing dev DB
+- [x] Migration applies cleanly on a fresh DB and on the existing dev DB
       (tests run with Flyway off, so this one is checked by hand)
-- [ ] Both entities map every column of the migration
-- [ ] `idempotency_key` uniqueness verified with a duplicate-insert test
+- [x] Both entities map every column of the migration
+- [x] `idempotency_key` uniqueness verified with a duplicate-insert test
 
 ## Step 2 — Device fingerprinting and outbox writes
 
